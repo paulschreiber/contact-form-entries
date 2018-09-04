@@ -56,6 +56,7 @@ add_filter( 'crmperks_forms_row_actions', array($this,'entries_link'),40,2);
 }
 
 public function mapping_page_settings(){
+    
     $sections=apply_filters('vx_entries_plugin_tab_sections',array()); 
            $section=vxcf_form::post('section');
           $ul=array(); $no=0;  $link=admin_url('admin.php?page=vxcf_leads&tab=settings&section='); 

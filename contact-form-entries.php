@@ -1,13 +1,13 @@
 <?php
 /**
-* Plugin Name: Contact Form Entries Pro
+* Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.0
+* Version: 1.0.1
 * Requires at least: 3.8
 * Tested up to: 4.9
 * Author URI: https://www.crmperks.com
-* Plugin URI: https://www.crmperks.com/plugins/contact-forms-plugins/contact-form-entries-plugin/
-* Author: CRM Perks, Inc.
+* Plugin URI: https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/
+* Author: CRM Perks
 */
 // Exit if accessed directly
 if( !defined( 'ABSPATH' ) ) exit;
@@ -30,7 +30,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.0';
+  public static  $version = '1.0.1';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -74,7 +74,8 @@ wp_register_script( 'vx-tablepager-js', self::$base_url. 'js/jquery.tablesorter.
 //$form=cfx_form::get_form('1'); var_dump($form['fields']); die();
 }
 
-public  function setup_main(){  
+public  function setup_main(){ 
+
   //handling post submission.
 //  add_action("gform_entry_created", array($this, 'gf_entry_created'), 40, 2);
 // add_filter('wpcf7_mail_components', array($this, 'submission'), 999, 3);
@@ -123,25 +124,25 @@ add_shortcode('vx-entries', array($this, 'entries_shortcode'));
   $install->create_upload_dir();   
   }
      //plugin api
-//$this->plugin_api(true);
+$this->plugin_api(true);
 require_once(self::$path . "includes/crmperks-cf.php");
 require_once(self::$path . "includes/plugin-pages.php");   
 self::$pages=new vxcf_form_pages(); 
 $pro_file=self::$path . 'pro/pro.php';
-//if(file_exists($pro_file)){ include_once($pro_file); }
-//$pro_file=self::$path . 'pro/add-ons.php';
+if(file_exists($pro_file)){ include_once($pro_file); }
+$pro_file=self::$path . 'pro/add-ons.php';
 if(file_exists($pro_file)){ include_once($pro_file); }
 $pro_file=self::$path . 'wp/crmperks-notices.php';
 if(file_exists($pro_file)){ include_once($pro_file); }
 //$forms=vxcf_form::get_forms();   
 }
-//$f=self::get_form_fields('wp_38');
+
 }
 
 public function plugin_api($start_instance=false){
 $file=self::$path . "pro/plugin-api.php";
-if(!class_exists('vxcf_plugin_api') && file_exists($file)){   
-require_once($file);
+if( file_exists($file)){   
+if(!class_exists('vxcf_plugin_api')){    include_once($file); }
 if(class_exists('vxcf_plugin_api')){
  $update_id = "400001";
  $title='Contact Form Entries Plugin';
@@ -269,8 +270,9 @@ $field_label= date('M-d-Y H:i:s',$field_label);
   }
  
   } die('-----------');*/
+  ob_start();
 include_once(self::$path . "templates/leads-table.php");
-//var_dump($entries);
+return ob_get_clean();
 }
 public function create_entry_auto($entry=""){
 

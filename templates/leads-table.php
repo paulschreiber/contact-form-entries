@@ -56,14 +56,15 @@ $total_cols++;
   <td><?php echo $sno ?></td>
     <?php
       }
-foreach($fields as $field){  
+foreach($fields as $field){
+$field_name=$field['name'].'_field';  
 if($field['name'] == 'time'){
   $field['name']='created';  
 }
 
 $field_label='';
-if(isset($lead['detail'][$field['name']])){
- $field_label=maybe_unserialize($lead['detail'][$field['name']]);   
+if(isset($lead['detail'][$field_name])){
+ $field_label=maybe_unserialize($lead['detail'][$field_name]);   
 
 if(is_array($field_label)){
   $field_label=implode(', ',$field_label);  

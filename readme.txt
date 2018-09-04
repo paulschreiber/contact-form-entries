@@ -1,24 +1,24 @@
 === Contact Form Entries ===
 Contributors: crmperks, sbazzi
-Tags: contact form 7, contact form 7 database, contact form 7 submissions, contact form 7 save, contact form 7 db, contact form 7 entries, contact form, form, forms, database, wp form
+Tags: contact form 7, contact form 7 db, contact form db, save contact form, contact form storage
 Requires at least: 3.8
 Tested up to: 4.9
-Stable tag: 1.0
-Version: 1.0
+Stable tag: 1.0.1
+Version: 1.0.1
 Requires PHP: 5.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Saves Contact Form 7, CRM Forms and many other contact form submissions to database.
+Saves Contact Form 7, CRM Perks Forms and many other contact form submissions to database.
 
 == Description ==
 
-Contact Forms Entries Plugin automatically saves form submissions from Contact Form 7, CRM Forms and many other popular contact form plugins to wordpress database. Learn more at [crmperks.com](https://www.crmperks.com/plugins/contact-form-plugins/crm-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme)
+Contact Forms Entries Plugin automatically saves form submissions from Contact Form 7, CRM Perks Forms and many other popular contact form plugins to wordpress database. Learn more at [crmperks.com](https://www.crmperks.com/plugins/contact-form-plugins/crm-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme)
 
 == Supported Contact Forms ==
 
 * [Contact Form 7](https://wordpress.org/plugins/contact-form-7/)
-* [CRM Forms](https://wordpress.org/plugins/crm-perks-forms/)
+* [CRM Perks Forms](https://wordpress.org/plugins/crm-perks-forms/)
 * [Gravity Forms](https://gravityforms.com)
 * [WP Forms](https://wordpress.org/plugins/wpforms-lite/)
 * [JetPack Contact Form](https://wordpress.org/plugins/jetpack/)
@@ -51,12 +51,12 @@ Contact Forms Entries Plugin automatically saves form submissions from Contact F
 
 <blockquote>
 <p><strong>Premium Version Features.</strong></p>
-<p>This plugin has a Premium version which is included with <a href="https://www.crmperks.com/plugins/contact-form-plugins/crm-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme">CRM Forms</a>.</p>
+<p>This plugin has a Premium version which is included with <a href="https://www.crmperks.com/plugins/contact-form-plugins/crm-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme">CRM Perks Forms</a>.</p>
 <ul>
 <li>Compare daily entries, visitors and partial entries in graphical forms.</li>
 <li>Google Analytics Parameters and Geolocation of a visitor who submitted the form.</li>
 <li>Lead Scoring.</li>
-<li>Lookup lead's email using email lookup apis.We support all googd email lookup apis like Fullcontact , Towerdata , Clearbit and pipl.com API.</li>
+<li>Lookup lead's email using email lookup apis.We support all good email lookup apis like Fullcontact , Towerdata , Clearbit and pipl.com API.</li>
 <li>Verify lead's phone number and get detailed information about phone number using phone lookup apis, We support many good phone lookup apis like everyoneapi , whitepages api , twilio api and numverify api.</li>
 <li>Send entries to Zapier or any web hook.</li>
 <li>Create a entry from posted data by other systems.</li>
@@ -79,7 +79,19 @@ We have Premium Extensions for 20+ CRMs.[View All CRM Extensions](https://www.cr
 * [Contact Form Sugar Plugin](https://www.crmperks.com/plugins/contact-form-plugins/contact-form-sugar-plugin/?utm_medium=referral&utm_source=wordpress&utm_campaign=Entries+Readme&utm_content=WP)
 * [Contact Form Zoho Plugin](https://www.crmperks.com/plugins/contact-form-plugins/contact-form-zoho-plugin/?utm_medium=referral&utm_source=wordpress&utm_campaign=Entries+Readme&utm_content=WP)
 * [Contact Form Insightly Plugin](https://www.crmperks.com/plugins/contact-form-plugins/contact-form-insightly-plugin/?utm_medium=referral&utm_source=wordpress&utm_campaign=Entries+Readme&utm_content=WP)
-* [Contact Form Nutsell Plugin](https://www.crmperks.com/plugins/contact-form-plugins/contact-form-nutshell-plugin/?utm_medium=referral&utm_source=wordpress&utm_campaign=Entries+Readme&utm_content=WP)
+* [Contact Form Nutshell Plugin](https://www.crmperks.com/plugins/contact-form-plugins/contact-form-nutshell-plugin/?utm_medium=referral&utm_source=wordpress&utm_campaign=Entries+Readme&utm_content=WP)
+
+
+== Our Free Plugins ==
+
+* [CRM Perks Forms](https://wordpress.org/plugins/crm-perks-forms/).
+
+* [Support X - Wordpress Helpdesk](https://wordpress.org/plugins/support-x/).
+
+* [WooCommerce Salesforce Plugin](https://wordpress.org/plugins/woo-salesforce-plugin-crm-perks/).
+
+* [Gravity Forms FreshDesk Plugin](https://wordpress.org/plugins/gf-freshdesk/).
+
 
 
 == Screenshots ==
@@ -100,6 +112,9 @@ We have Premium Extensions for 20+ CRMs.[View All CRM Extensions](https://www.cr
 Our team provides free support at <a href="https://www.crmperks.com/contact-us/">https://www.crmperks.com/contact-us/</a>.
 
 == Changelog ==
+
+= 1.0.1 =
+*	Fixed entries table shortcode.
 
 = 1.0.0 =
 *	Initial release.

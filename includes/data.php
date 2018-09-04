@@ -415,10 +415,10 @@ public function add_time_sql($search,$time_key){
   case"custom":
    
   if(!empty($_GET['start_date'])){
-  $start_date=strtotime(vxcf_form::post('start_date',$req).' 00:00:00');
+  $start_date=strtotime(vxcf_form::post('start_date').' 00:00:00');
   }
    if(!empty($_GET['end_date'])){
-  $end_date=strtotime(vxcf_form::post('end_date',$req).' 23:59:59');
+  $end_date=strtotime(vxcf_form::post('end_date').' 23:59:59');
    } 
   break;
   }

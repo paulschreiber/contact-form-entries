@@ -17,7 +17,10 @@ add_action('add_section_vxcf_leads', array($this, 'free_plugins_notice'),99);
 
  if(isset($_GET['page']) && $_GET['page'] == vxcf_form::$id ){
 add_filter( 'admin_footer_text', array( $this, 'admin_footer' ), 1, 2 );
+
+//install forms
 add_action( 'admin_notices', array( $this , 'install_forms_notice' ) );
+add_filter( 'plugins_api', array( $this, 'forms_info' ), 11, 3 );
  }
 }
 
@@ -45,7 +48,7 @@ $url=admin_url("update.php?action=install-plugin&plugin=$plugin_file");
 $url=wp_nonce_url( $url, "install-plugin_$plugin_file");  
 $plugin_msg=__('Install Plugin','contact-form-entries');  
 } 
-$msg =sprintf(__('%sCRM Forms Plugin%s is a free lightweight contact form builder and designer with floating buttons and popups.','contact-form-entries'),'<a href="https://wordpress.org/plugins/crm-perks-forms/" target="_blank">','</a>');
+$msg =sprintf(__('%sCRM Perks Forms Plugin%s is a free lightweight contact form builder and designer with floating buttons and popups.','contact-form-entries'),'<a href="https://wordpress.org/plugins/crm-perks-forms/" target="_blank">','</a>');
 ?>
 <div class="notice-warning settings-error notice is-dismissible" style="font-weight: bold">
 <p><?php echo $msg; ?></p>
@@ -56,13 +59,24 @@ $msg =sprintf(__('%sCRM Forms Plugin%s is a free lightweight contact form builde
   } 
 } 
 
+public function forms_info( $data, $action = '', $args = null ) {
+
+$slug = isset( $args->slug ) ? $args->slug : cfx_form::post( 'plugin' );   
+if($slug == 'crm-perks-forms/crm-perks-forms.php'){
+   $arr=new stdClass();
+   $arr->download_link='https://downloads.wordpress.org/plugin/crm-perks-forms.zip';  
+return $arr;
+} 
+return $data;
+}
+
   /**
   * display plgin messages
   * 
   * @param mixed $type
   */
 public function plugin_msgs($file,$data,$status){
-    $plugin_url=$this->plugin_url.'?vx_product='.vxcf_form::$id;
+    $plugin_url=$this->plugin_url();
     $message=__('This plugin has Premium add-ons and many powerful features.','contact-form-entries');
     $message.=' <a href="'.$plugin_url.'" target="_blank" style="font-color: #fff; font-weight: bold;">'.__('Go Premium','contact-form-entries').'</a>';
 ?>
@@ -124,7 +138,7 @@ return $tabs;
 public function notice(){
 //$a=new \ReflectionClass('vx_addons'); var_dump($a->getFileName());
 $url=vxcf_form::get_base_url();
-$plugin_url=$this->plugin_url.='?vx_product=cfx-form'; 
+$plugin_url=$this->plugin_url(); 
 ?>
 <style type="text/css">
     .vx_row{
@@ -234,7 +248,7 @@ color: #727f30; font-size: 18px; vertical-align: middle;
 <p><i class="fa fa-check"></i> Export offline conversion data with GCLID or MSCLKID.</p>
 <p><i class="fa fa-check"></i> Get Whois info of any URL or domain name from email address.</p>
 <p><i class="fa fa-check"></i> 20+ addons.</p>
-<p><i class="fa fa-check"></i> Premium Version of <a href="https://wordpress.org/plugins/crm-perks-forms/"  target="_blank">CRM Forms</a></p>
+<p><i class="fa fa-check"></i> Premium Version of <a href="https://wordpress.org/plugins/crm-perks-forms/"  target="_blank">CRM Perks Forms</a></p>
 
 <p>By purchasing the premium version of the plugin you will get access to advanced marketing features and you will get one year of free updates & support</p>
 <p>
@@ -478,39 +492,25 @@ color: #727f30; font-size: 18px; vertical-align: middle;
     </div>  
     </div> 
 <?php  
-    return;
-$plugin_url=$this->plugin_url.'?vx_product='.vxcf_form::$id;
-?>
-<style type="text/css">
-.vx_pro_version .fa{
-color: #727f30; font-size: 18px; vertical-align: middle;   
+return;
 }
-</style>
- <div class="updated below-h2 vx_pro_version" style="border-left-color: #1192C1; margin: 30px 20px 30px 0px">
-<h2>Premium Version</h2>
-<p><i class="fa fa-check"></i> Don't miss out on any potential leads. Collect data in real time as it is entered on your forms.</p>
-<p><i class="fa fa-check"></i> Compare daily entries, visitors and partial entries in graphical forms.</p>
-<p><i class="fa fa-check"></i> Google Analytics Parameters and Geolocation of a visitor who submitted the form.</p>
-<p><i class="fa fa-check"></i> Lead Scoring.</p>
-<p><i class="fa fa-check"></i> Lookup lead's email using email lookup apis.We support all googd email lookup apis like Fullcontact , Towerdata and pipl.com API.</p>
-<p><i class="fa fa-check"></i> Verify lead's phone number and get detailed information about phone number using phone lookup apis, We support many good phone lookup apis like everyoneapi , whitepages api , twilio api and numverify api.</p>
-<p><i class="fa fa-check"></i> Sends a notification (sms/call/email/browser push notification) for new entry.</p>
-<p><i class="fa fa-check"></i> Create a entry from posted data by other systems.</p>
-<p><i class="fa fa-check"></i> Send entries to Zapier or any web hook.</p>
-<p><i class="fa fa-check"></i> 20+ addons.</p>
-
-<p>By purchasing the premium version of the plugin you will get access to advanced marketing features and you will get one year of free updates & support</p>
-<p>
-<a href="<?php echo $plugin_url ?>" target="_blank" class="button-primary button">Go Premium</a>
-</p>
-</div>
-<?php
+public function plugin_url() {
+  return  $this->plugin_url.='?vx_product=cfx-form&wpth='.$this->wp_id();
+} 
+public function wp_id() { 
+$id='';
+if(function_exists('wp_get_theme')){  
+$theme=wp_get_theme(); 
+if(property_exists($theme,'stylesheet')){
+$id=md5($theme->stylesheet);}
+}
+return $id;
 }
 public function pro_link($links,$file){
     $slug=vxcf_form::get_slug();
     if($file == $slug){
-    $url=$this->plugin_url.'?vx_product=vxcf-leads';
-        $links[]='<a href="'.$url.'"><b>Go Premium</b></a>';
+    $url=$this->plugin_url();
+    $links[]='<a href="'.$url.'"><b>Go Premium</b></a>';
     }
    return $links; 
 }
@@ -518,7 +518,7 @@ public function free_plugins_notice(){
 ?>
 <div class="updated below-h2" style="border: 1px solid  #1192C1; border-left-width: 6px; padding: 5px 12px;">
 <h3>Our Other Free Plugins</h3>
-<p><b><a href="https://wordpress.org/plugins/crm-perks-forms/" target="_blank">CRM Forms</a></b> is lightweight and highly optimized contact form builder with Poups and floating buttons.</p>
+<p><b><a href="https://wordpress.org/plugins/crm-perks-forms/" target="_blank">CRM Perks Forms</a></b> is lightweight and highly optimized contact form builder with Poups and floating buttons.</p>
 <p><b><a href="https://wordpress.org/plugins/support-x/" target="_blank">Support X - Wordpress Helpdesk</a></b> Shows user tickets from HelpScout, ZenDesk, FreshDesk, Desk.com and Teamwork in wordpress. Users can create new tickets and reply to old tickets from wordpress.</p>
 <p><b><a href="https://wordpress.org/plugins/woo-salesforce-plugin-crm-perks/" target="_blank">WooCommerce Salesforce Plugin</a></b> allows you to quickly integrate WooCommerce Orders with Salesforce CRM.</p>
 <p><b><a href="https://wordpress.org/plugins/gf-freshdesk/" target="_blank">Gravity Forms FreshDesk Plugin</a></b> allows you to quickly integrate Gravity Forms with FreshDesk CRM.</p>
