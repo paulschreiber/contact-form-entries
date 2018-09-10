@@ -53,6 +53,9 @@ add_action('crmperks_entries_stats_end',array($this,'add_forms_stats'),40);
 add_action('wp_dashboard_setup', array($this,'add_forms_stats_dashboard'),30 );
 //entries link in all forms
 add_filter( 'crmperks_forms_row_actions', array($this,'entries_link'),40,2);
+add_filter('wp_privacy_personal_data_exporters',array($this,'export_personal_data'));
+add_filter('wp_privacy_personal_data_erasers',array($this,'remove_personal_data'));
+
 }
 
 public function mapping_page_settings(){
@@ -417,7 +420,7 @@ public function forms_stats_table(){
         }
     }    
     } ?></tbody> </table><?php }else{  ?>
-<h1 style="text-align: center; margin-top: 150px;"><?php _e('No Data To Display','contact-form-entries') ?></h1>
+<h1 style="text-align: center; margin: 50px 0;"><?php _e('No Data To Display','contact-form-entries') ?></h1>
 <?php } ?> 
     <style type="text/css">
 .entries_stats{
@@ -1356,6 +1359,94 @@ private function get_country_states(){
   <i class="vx_icons vxc_tips fa fa-question-circle" data-tip="<?php echo $str ?>"></i> 
   <?php  
   }
+public function remove_personal_data( $exporters ) {
+  $exporters[vxcf_form::$id] = array(
+    'eraser_friendly_name' => __( 'Contact Form Entries' ),
+    'callback' => array($this,'delete_personal_data'),
+  );
+  return $exporters;
+}
+public function delete_personal_data( $email_address, $page = 1 ) {
+    
+     $this->personal_data( $email_address , 'delete' );
+   return array( 'items_removed' => true,
+    'items_retained' => false, // always false in this example
+    'messages' => array(), // no messages in this example
+    'done' => true,
+  ); 
+}
+public function export_personal_data( $exporters ) {
+  $exporters[vxcf_form::$id] = array(
+    'exporter_friendly_name' => __( 'Contact Form Entries' ),
+    'callback' => array($this,'export_personal_data_callback'),
+  );
+  return $exporters;
+}
+
+public function export_personal_data_callback( $email_address, $page = 1 ) {
+    $export_items=$this->personal_data( $email_address );
+  // Tell core if we have more comments to work on still
+  $done = true;
+  return array(
+    'data' => $export_items,
+    'done' => $done,
+  );
+}
+    public function personal_data( $email_address, $action='export' ) {
+  $per_page = 50; // Limit us to avoid timing out
+  $page = (int) $page;
+$forms=vxcf_form::get_forms();
+$fields=array(); $export_items=array();
+if(!empty($forms)){
+foreach($forms as $type=>$form_arr){
+    if(!empty($form_arr['forms'])){
+   foreach($form_arr['forms'] as $id=>$title){
+   $form_id=$type.'_'.$id;     
+    $form_fields=vxcf_form::get_form_fields($form_id);
+    if(!empty($form_fields)){
+        $email_fields=array();
+        foreach($form_fields as $field){
+            if($field['type'] == 'email'){
+            $email_fields[]=$field['name'];    
+            }
+        }
+    if($action == 'export'){    
+   vxcf_form::$form_fields=$form_fields;
+    }     
+$entries_arr=vxcf_form::$data->get_entries($form_id,$per_page,array('search'=>$email_address,'field'=>$email_fields,'vx_links'=>'false')); 
+
+if($action == 'delete' && !empty($entries_arr['result']) ){
+$ids=array();
+foreach($entries_arr['result'] as $v){
+$ids[]=$v['id'];    
+}
+vxcf_form::$data->delete_leads($ids);    
+}
+if(!empty($entries_arr['result']) && $action == 'export'){
+foreach($entries_arr['result'] as $v){
+  if(!empty($v['detail'])){
+  $entry=array();
+      foreach($form_fields as $field){
+   if(isset($v['detail'][$field['name'].'_field'])){
+  $entry[]=array('name'=>$field['label'],'value'=>$v['detail'][$field['name'].'_field']);     
+   }   
+  }   
+    $export_items[] = array(
+        'group_id' => $form_id,
+        'group_label' => $title,
+        'item_id' => $v['id'],
+        'data' => $entry,
+      );    
+  }  
+} }
+  //  $fields[$form_id]=$form_fields;
+    }
+   } }
+} 
+}
+return $export_items;
+}
+  
 }
 }
 

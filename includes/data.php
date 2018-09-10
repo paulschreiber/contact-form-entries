@@ -259,13 +259,24 @@ $search=$this->add_time_sql($search,$time_key);
         }else{
 $search_d='select distinct l.id from '.$leads_table.' l inner join '.$detail.' d on (l.id=d.lead_id) where '.$form_id_q;
 
-  $search_d.=' and d.value like "%'.$search_s.'%"';  
-  if(!empty($_GET['field'])){
+$search_d.=' and d.value like "%'.$search_s.'%"';  
+ 
+if(!empty($req['field'])){
+    if(is_array($req['field']) ){
+   $search_fields=array();
+ foreach($req['field'] as $v){
+  $search_fields[]=esc_sql($v);   
+ }
+ $search_d.=!empty(vxcf_form::$sql_field_name) ? vxcf_form::$sql_field_name : ' and d.name in( "'.implode('","',$search_fields).'") ';
+        
+    }else{
   $field=esc_sql(vxcf_form::post('field',$req));
-  $search_d.=!empty(vxcf_form::$sql_field_name) ? vxcf_form::$sql_field_name : ' and d.name = "'.$field.'"';  
-  }
-   $search.=' and l.id in ('.$search_d.')';    
-  } }
+$search_d.=!empty(vxcf_form::$sql_field_name) ? vxcf_form::$sql_field_name : ' and d.name = "'.$field.'"';  
+    }
+}
+$search.=' and l.id in ('.$search_d.')';    
+  
+        } }
   
 $order='DESC';
   if(vxcf_form::post('order',$req)!=""){
@@ -332,17 +343,17 @@ $sql.=" order by $order_by $order ";
  $sql.=" LIMIT {$start},{$per_page}";  
  }
 // $sql='SELECT l.* from wp_vxcf_leads l left join wp_vxcf_leads_detail d on (l.id = d.lead_id) left join tickets t on(l.id=t.entry_id) where l.form_id ="cf_6" and l.status ="0" and d.value like "%bioinfo35@gmail.com%" and d.name = "your-email" and t.status ="open" and t.priority="normal" group by d.lead_id order by l.id DESC LIMIT 0,20';
-//echo $sql;            
+//echo $sql.'<hr>';            
 $results=$wpdb->get_results($sql, ARRAY_A);  
  //var_dump($results); die();   
  // $re = $wpdb->get_results('SELECT FOUND_ROWS();', ARRAY_A);     
 //  
              $leads=array();
 if(isset($results) && is_array($results) && count($results)>0){
-       foreach($results as $v){ 
-       $ids[]=$v['id'];
+foreach($results as $v){ 
+$ids[]=$v['id'];
    $leads[$v['id']]=$v;    
-       }
+}
        
 if(!empty(vxcf_form::$form_fields)){
  $sql_d="SELECT id,lead_id";   

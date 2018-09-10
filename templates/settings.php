@@ -3,7 +3,16 @@
      exit;
  } 
  $forms=vxcf_form::get_forms();
-     ?>
+ $forms_arr=array();
+ foreach($forms as $k=>$v){
+     if(in_array($k,array('vf'))){ continue; }
+     if(!empty($v['forms'])){
+   foreach($v['forms'] as $form_id=>$form_title){
+     $forms_arr[$k.'_'.$form_id]=$v['label'].' - '.$form_title;    
+   }       
+     }
+ }
+?>
 <style type="text/css">
   .crm_fields_table{
   width: 100%; margin-top: 30px;
@@ -114,10 +123,12 @@ $(".sf_login").click(function(e){
 <form action="" method="post">
   <?php wp_nonce_field("vx_nonce") ?>
   <h2>
-  <?php esc_html_e("Settings", 'contact-form-entries') ?>
+  <?php esc_html_e("General and GDPR Settings", 'contact-form-entries') ?>
   </h2>
   <table class="form-table">
-  
+ <?php
+      if(!empty($forms_arr)){
+  ?> 
   <tr>
   <th scope="row"><label for="vx_form_cf">
   <?php _e('Track Forms', 'contact-form-entries'); ?>
@@ -126,7 +137,7 @@ $(".sf_login").click(function(e){
   <td>
 <?php
 $saved_forms=!empty($meta['save_forms']) ? $meta['save_forms'] : array();
-$all_forms['cf']='Contact Form 7'; 
+/*$all_forms['cf']='Contact Form 7'; 
 $all_forms['fd']='Formidable Forms'; 
 //$all_forms['fs']='Fast Secure Contact Forms'; 
 $all_forms['jp']='Jetpack Contact Forms'; 
@@ -140,13 +151,34 @@ $all_forms['gf']='Gravity Forms';
 $all_forms['vf']='CRM Forms';  
 $all_forms['wc']='WooCommerce';  
 $all_forms['wp']='WP Forms';  
- foreach($all_forms as $k=>$v){
-  ?>
+*/
+foreach($forms_arr as $k=>$v){
+?>
 <p><label for="vx_form_<?php echo $k ?>"><input type="checkbox" name="meta[save_forms][<?php echo $k ?>]" value="yes" <?php if(!isset($meta['forms_saved']) || vxcf_form::post($k,$saved_forms) == "yes"){echo 'checked="checked"';} ?> id="vx_form_<?php echo $k ?>"><?php echo $v; ?></label></p>
-<?php
- }
+<?php 
+} 
 ?>
 <input type="hidden" name="meta[forms_saved]" value="yes"> 
+</td>
+</tr>
+<?php } ?>  
+  <tr>
+  <th scope="row"><label for="vx_cookies">
+  <?php _e('Disable Cookies', 'contact-form-entries'); ?>
+  </label>
+  </th>
+  <td>
+<label for="vx_cookies"><input type="checkbox" name="meta[cookies]" value="yes" <?php if(vxcf_form::post('cookies',$meta) == "yes"){echo 'checked="checked"';} ?> id="vx_cookies"><?php _e('Check this to disable user tracking cookies. This will disable Related Entries and Form Abandonment feature','contact-form-entries'); ?></label>
+  </td>
+  </tr>
+  
+   <tr>
+  <th scope="row"><label for="vx_ip">
+  <?php _e('Disable User Details', 'contact-form-entries'); ?>
+  </label>
+  </th>
+  <td>
+<label for="vx_ip"><input type="checkbox" name="meta[ip]" value="yes" <?php if(vxcf_form::post('ip',$meta) == "yes"){echo 'checked="checked"';} ?> id="vx_ip"><?php _e('Check this to disable IP address and User Agent(Browser ) tracking.','contact-form-entries'); ?></label>
   </td>
   </tr>
   

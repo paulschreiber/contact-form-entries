@@ -17,11 +17,10 @@ add_action('add_section_vxcf_leads', array($this, 'free_plugins_notice'),99);
 
  if(isset($_GET['page']) && $_GET['page'] == vxcf_form::$id ){
 add_filter( 'admin_footer_text', array( $this, 'admin_footer' ), 1, 2 );
-
 //install forms
 add_action( 'admin_notices', array( $this , 'install_forms_notice' ) );
-add_filter( 'plugins_api', array( $this, 'forms_info' ), 11, 3 );
  }
+add_filter( 'plugins_api', array( $this, 'forms_info' ), 11, 3 ); 
 }
 
 public function install_forms_notice(){
@@ -61,7 +60,7 @@ $msg =sprintf(__('%sCRM Perks Forms Plugin%s is a free lightweight contact form 
 
 public function forms_info( $data, $action = '', $args = null ) {
 
-$slug = isset( $args->slug ) ? $args->slug : cfx_form::post( 'plugin' );   
+$slug = isset( $args->slug ) ? $args->slug : vxcf_form::post( 'plugin' );   
 if($slug == 'crm-perks-forms/crm-perks-forms.php'){
    $arr=new stdClass();
    $arr->download_link='https://downloads.wordpress.org/plugin/crm-perks-forms.zip';  

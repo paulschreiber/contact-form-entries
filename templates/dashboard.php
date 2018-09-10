@@ -65,9 +65,9 @@ background: #fff;
 </style> 
 <h2 class="vx_top_head"><?php _e('Entries Stats','contact-form-entries') ?></h2>
 <form method="get">
-                <input type="hidden" name="page" value="<?php echo cfx_form::post('page') ?>">
-                <input type="hidden" name="tab" value="<?php echo cfx_form::post('tab') ?>">
-                <select name="form" class="crm_input_inline">
+                <input type="hidden" name="page" value="<?php echo vxcf_form::post('page') ?>">
+                <input type="hidden" name="tab" value="<?php echo vxcf_form::post('tab') ?>">
+<select name="form" class="crm_input_inline">
                 <option value=""><?php _e('All Forms','contact-form-entries') ?></option>
           <?php
      if(!empty($all_forms)){     
@@ -91,7 +91,7 @@ background: #fff;
   <?php
      } } }
   ?>
-                </select>
+</select>
     <select name="time" class="crm_time_select crm_input_inline">
                   <option value=""><?php _e('All Times','contact-form-entries') ?></option>
                   <?php
@@ -105,8 +105,8 @@ background: #fff;
                 </select>
                 
              <span style="<?php if(! (isset($_REQUEST['time']) && $_REQUEST['time'] == "custom")){echo "display:none";} ?>" class="crm_custom_range"> 
-                <input type="text" name="start_date" placeholder="From Date" value="<?php echo cfx_form::post('start_date');?>" class="sales_date crm_input_inline">
-         <input type="text" class="sales_date crm_input_inline" value="<?php echo cfx_form::post('end_date');?>" placeholder="To Date" name="end_date"></span>
+                <input type="text" name="start_date" placeholder="From Date" value="<?php echo vxcf_form::post('start_date');?>" class="sales_date crm_input_inline">
+         <input type="text" class="sales_date crm_input_inline" value="<?php echo vxcf_form::post('end_date');?>" placeholder="To Date" name="end_date"></span>
             
   <button type="submit" class="button-secondary button"><?php _e('Apply','contact-form-entries') ?></button>
                 

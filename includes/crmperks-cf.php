@@ -10,20 +10,10 @@ public function __construct(){
 add_action( 'vx_cf_add_meta_box', array($this,'add_meta_box'),10,2 );  
 }
 public function addons_key(){
-     $users=get_option('__vx_addon_user',array()); 
-     $key=''; $lic_order=0; $time=current_time( 'timestamp' );
-     if(is_array($users) && count($users)>0){
-            foreach($users as $user){
-           if(is_array($user) && isset($user['addons_access']) && $user['addons_access'] == 'true' && !empty($user['lic_order'])){
-               $valid=!empty($user['expires']) && (int)$user['expires']<$time ? false : true;
-                $lic_order_=(int)$user['lic_order'];
-               if( $lic_order<$lic_order_){
-             $key=$user['user'];
-             $lic_order=$lic_order_;
-               }  
-           }     
-            }      
-     }
+       $key='';
+    if(class_exists('vxcf_addons')){
+        $key=vxcf_addons::addons_key();
+    }
    return $key;  
 }
    public function get_pro_domain(){
