@@ -1,7 +1,7 @@
 <?php
   if ( ! defined( 'ABSPATH' ) ) {
      exit;
- }  ?>
+ } $print=get_option('print_note_'.vxcf_form::$id);  ?>
  <style type="text/css">
 .vx_msg_div a{
     color: #fff;
@@ -23,7 +23,7 @@
   </div>
 
   <div class="vx_group" style="padding: 2px 12px; border-bottom-width: 0px;">
- <p>  <label><input type="checkbox" id="vx_include_notes" <?php if(!empty(get_option('print_note_'.vxcf_form::$id))){ echo 'checked="checked"'; } ?>> <?php _e('Include Notes','contact-form-entries') ?></label></p>
+ <p>  <label><input type="checkbox" id="vx_include_notes" <?php if(!empty($print)){ echo 'checked="checked"'; } ?>> <?php _e('Include Notes','contact-form-entries') ?></label></p>
 
     </div>
       <div class="vx_head" style="font-weight: normal; padding: 10px;">

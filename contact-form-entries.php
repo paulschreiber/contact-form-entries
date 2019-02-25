@@ -2,9 +2,9 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.0.2
+* Version: 1.0.3
 * Requires at least: 3.8
-* Tested up to: 4.9
+* Tested up to: 5.1
 * Author URI: https://www.crmperks.com
 * Plugin URI: https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/
 * Author: CRM Perks
@@ -15,11 +15,7 @@ if( !defined( 'ABSPATH' ) ) exit;
 
 if( !class_exists( 'vxcf_form' ) ):
 
-/**
-* Main class
-*
-* @since       1.0.0
-*/
+
 class vxcf_form {
     
 
@@ -30,7 +26,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.0.2';
+  public static  $version = '1.0.3';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -177,8 +173,8 @@ public function entries_shortcode($atts){
    }   
   }     
   }
-  $fields=vxcf_form::get_form_fields($form_id);
-  $fields['created']=array('name'=>'created','_id'=>'created', 'label'=> __('Created', 'contact-form-entries'));
+$fields=vxcf_form::get_form_fields($form_id);
+$fields['created']=array('name'=>'created','_id'=>'created', 'label'=> __('Created', 'contact-form-entries'));
 
   $col_end=count($fields);
   if(!empty($atts['cols'])){
@@ -319,11 +315,11 @@ if(is_array($arr) && count($arr)>0){
  var_dump($tags,$arr); die();
 }
 
-public function create_entry($lead,$form,$type){
+public function create_entry($lead,$form,$type,$info='',$save=true){
+    if(!is_array($info)){ $info=array(); }
     $entry_id='';
     if(is_array($lead) && count($lead)>0){
-        
- 
+
   $data=vxcf_form::get_data_object();
   $form_id=$type.'_'.$form['id'];
   $main=array('form_id'=>$form_id);
@@ -333,20 +329,21 @@ public function create_entry($lead,$form,$type){
       return;
   }
   $meta=get_option(vxcf_form::$id.'_meta',array());
-  if(empty($meta['ip'])){
-  $main=$this->get_lead_info($main);
-  }
+
+  $main=$this->get_lead_info($main,$info);
+//var_dump($lead); die();
   //set self::$form_fields_temp
  vxcf_form::get_form_fields($form_id);  
 $lead=apply_filters('vxcf_entries_plugin_before_saving_lead',$lead,$main); 
 $vis_id=''; $entry_id=0;
+if($save){
 if(empty($meta['cookies'])){
 $vis_id=$this->vx_id();
 $entry_id=$data->get_vis_info_of_day($vis_id,$form_id,'1');
 } 
 $main['type']='0'; $main['is_read']='0';
 $entry_id=$this->create_update_lead($lead,$main,$entry_id);
-
+}
   //  var_dump($detail,$lead,$entry_id); die();
  $forms_arr=get_option('vxcf_all_forms',array()); 
 if(!isset($forms_arr[$type]['label'])){
@@ -364,7 +361,8 @@ $forms_fields=get_option('vxcf_all_fields',array());
 $forms_fields[$type]['fields'][$form['id']]=self::$form_fields_temp[$form_id];      
 update_option('vxcf_all_fields',$forms_fields,false);     
 }
-
+$main['id']=$entry_id;
+$lead['__vx_entry']=$main;
 if($this->do_actions()){
 do_action('vx_addons_save_entry',$entry_id,$lead,'cf',$form);
 }
@@ -396,7 +394,7 @@ $data->update_lead($update,$insert,$entry_id,$lead);
 }
 return $entry_id;
 }
-public function update_entry_meta($entry_id,$meta_key,$meta){
+public static function update_entry_meta($entry_id,$meta_key,$meta){
 if(!empty($entry_id) && !empty($meta) && is_array($meta)){
  $entry=vxcf_form::get_entry($entry_id);
  $detail=!empty($entry['meta']) ? json_decode($entry['meta'],true) : array();
@@ -408,10 +406,15 @@ if(!empty($entry_id) && !empty($meta) && is_array($meta)){
  $data->update_lead('','',$entry_id,array('meta'=>json_encode($detail)));
 }
 }
-public function get_lead_info($info){
+public function get_lead_info($info,$meta_info=array()){
       $current_user = wp_get_current_user();
   $info['user_id']=$current_user->ID;
-  $info['ip']=$this->get_ip();
+  if(!empty($meta_info['ip'])){
+  $ip=$meta_info['ip'];
+  }else{
+   $ip=$this->get_ip();   
+  }
+  $info['ip']=$ip;
    $resolution="";
 if(isset($_POST['vx_width'])){
 $width=vxcf_form::post('vx_width');
@@ -419,30 +422,35 @@ $height=vxcf_form::post('vx_height');
  $resolution=$width." x ".$height;
 $info['screen']=$resolution;
 }
-$bro_info=self::browser_info();
+$user_agent=!empty($meta_info['user_agent']) ? $meta_info['user_agent'] : '';
+$bro_info=self::browser_info($user_agent);
 //get page url
 $page_url="//$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 if(isset($_REQUEST['vx_url'])){
 $page_url=vxcf_form::post('vx_url');
 }
+if(!empty($meta_info['url'])){
+ $page_url=$meta_info['url'];  
+}
 $page_url=substr($page_url,0,250);
 $info['url']=$page_url; 
 $info['browser']=$bro_info['name'];
 $info['os']=$bro_info['platform'];
-$info['vis_id']=$this->vx_id();
+if(!empty($meta_info['vis_id'])){
+$info['vis_id']=$meta_info['vis_id'];
+}else{
+    $info['vis_id']=$this->vx_id();
+}
 return $info;
 }
 public function create_entry_vf($entry_id,$entry,$form){
 //$track=$this->track_form_entry('vf');
-if( !empty($form['settings']['disable_db'])){
-    return;
-}
-return $this->create_entry($entry,$form,'vf');
+$track= empty($form['settings']['disable_db']);
+
+return $this->create_entry($entry,$form,'vf','',$track);
 } 
 public function create_entry_wp($fields, $entry, $form_id, $form_data){
 $track=$this->track_form_entry('wp',$form_id);
-if($track === false){ return; }
-
 
 $upload_files=$lead=array();
 if(!empty($fields)){
@@ -458,9 +466,11 @@ if(in_array($v['type'],array('payment-select','payment-multiple'))){
 }
 $lead[$v['id']]=$val;
 }    } 
-  $uploaded_files=$this->copy_files($upload_files); 
-       if(is_array($uploaded_files)){
-       foreach($uploaded_files as $k=>$v){
+if($track){
+  $upload_files=$this->copy_files($upload_files); 
+}  
+       if(is_array($upload_files)){
+       foreach($upload_files as $k=>$v){
        $lead[$k]=$v;    
        } }
            
@@ -468,15 +478,13 @@ $form_arr=array('id'=>$form_data['id'],'name'=>'WP Forms','fields'=>$form_data['
 if(!empty($form_data['fields']['settings']['form_title'])){
     $form_arr['name']=$form_data['fields']['settings']['form_title'];
 }
-$this->create_entry($lead,$form_arr,'wp'); 
+$this->create_entry($lead,$form_arr,'wp','',$track); 
 }
 //var_dump($fields); die();
 }
 public function create_entry_wc($id,$posted){
    $track=$this->track_form_entry('wc','1');
-   if($track === false){
-    return;
-}
+
 $tags=vxcf_form::get_form_fields('wc_1'); 
   $order=get_post_meta($id);
   $_order=new WC_Order($id);
@@ -495,21 +503,19 @@ if(!empty($tags)){
 }
 //var_dump($lead,$order,$tags); die();
 $form_arr=array('id'=>'1','name'=>'WooCommerce','fields'=>$tags);
-$this->create_entry($lead,$form_arr,'wc'); 
+$this->create_entry($lead,$form_arr,'wc','',$track); 
 
 }
 public function create_entry_cf($form){ 
 
-    $form_id=$form->id();
+$form_id=$form->id();
 $track=$this->track_form_entry('cf',$form_id);
-if($track === false){
-    return;
+
+$submission = WPCF7_Submission::get_instance();      
+$uploaded_files = $submission->uploaded_files();
+if($track){
+$uploaded_files=$this->copy_files($uploaded_files);
 }
-     $submission = WPCF7_Submission::get_instance();  
-    
-     $uploaded_files_form = $submission->uploaded_files();
-//
-$uploaded_files=$this->copy_files($uploaded_files_form);
 $form_title=$form->title();
 $tags=vxcf_form::get_form_fields('cf_'.$form_id); 
 
@@ -528,7 +534,7 @@ $val = $submission->get_posted_data($name);
 }
 
 $form_arr=array('id'=>$form_id,'name'=>$form_title,'fields'=>$tags);
-$this->create_entry($lead,$form_arr,'cf');
+$this->create_entry($lead,$form_arr,'cf','',$track);
 
 }
 public function create_entry_na($data){ 
@@ -536,7 +542,7 @@ public function create_entry_na($data){
     $form_id=$data['form_id'];
     $track=$this->track_form_entry('na',$form_id);
     
-if($track === false && empty($data['form_id'])){
+if(empty($data['form_id'])){
     return;
 }
 
@@ -553,24 +559,22 @@ if(!empty($data['fields'])){
          }
      } 
   }
-
-$uploaded_files=$this->copy_files($upload_files); 
+if($track){
+$uploaded_files=$this->copy_files($uploaded_files); 
+} 
        if(is_array($uploaded_files)){
        foreach($uploaded_files as $k=>$v){
        $lead[$k]=$v;    
        } 
        }
 $form_arr=array('id'=>$form_id,'name'=>$form_title,'fields'=>$data['data']['fields']);
-$this->create_entry($lead,$form_arr,'na');  
+$this->create_entry($lead,$form_arr,'na','',$track);  
     
 }
 }
 public function create_entry_qu($form){
 $form_id=$form->getId(); 
     $track=$this->track_form_entry('qu',$form_id);
-if($track === false){
-    return;
-}
       if(empty($form)){
             return;
         }
@@ -603,15 +607,17 @@ if($track === false){
           }     
       }   
      }
-          $uploaded_files=$this->copy_files($upload_files); 
-       if(is_array($uploaded_files)){
-       foreach($uploaded_files as $k=>$v){
+     if($track){
+          $upload_files=$this->copy_files($upload_files); 
+     }
+       if(is_array($upload_files)){
+       foreach($upload_files as $k=>$v){
        $lead[$k]=$v;    
        } 
        }
      if(count($lead)>0){  
     $form_arr=array('id'=>$form_id,'name'=>$form->getName(),'fields'=>$fields);
-$this->create_entry($lead,$form_arr,'qu');
+$this->create_entry($lead,$form_arr,'qu','',$track);
      }
     }
 
@@ -620,9 +626,7 @@ $this->create_entry($lead,$form_arr,'qu');
 public function create_entry_ca($form){ 
     $form_id=$form['ID'];
     $track=$this->track_form_entry('ca',$form_id);
-if($track === false){
-    return;
-}
+
     global $processed_data;
  
       if(empty($form)){
@@ -655,24 +659,24 @@ if($track === false){
      $lead[$id]=$val;     
       }   
      }
-     $uploaded_files=$this->copy_files($upload_files); 
-       if(is_array($uploaded_files)){
-       foreach($uploaded_files as $k=>$v){
+     if($track){
+     $upload_files=$this->copy_files($upload_files); 
+     }
+       if(is_array($upload_files)){
+       foreach($upload_files as $k=>$v){
        $lead[$k]=$v;    
        }  
    }  
      if(count($lead)>0){  
     $form_arr=array('id'=>$form_id,'name'=>$form['name'],'fields'=>$fields);
-$this->create_entry($lead,$form_arr,'ca');
+$this->create_entry($lead,$form_arr,'ca','',$track);
      }
     }
 
 }
 public function create_entry_be(){
      $track=$this->track_form_entry('be','1');
-if($track === false){
-    return;
-}
+
      global $cntctfrm_path_of_uploaded_file;
      $fields=vxcf_form::get_form_fields('be_');
     $lead=array();
@@ -681,7 +685,10 @@ if($track === false){
           if(isset($_POST['cntctfrm_contact_'.$k])){
            $lead[$k]=vxcf_form::post('cntctfrm_contact_'.$k);   
           }else if($field['type'] == 'file' && !empty($cntctfrm_path_of_uploaded_file)){
-                $files=$this->copy_files(array($k=>$cntctfrm_path_of_uploaded_file) );
+              $files=array($k=>$cntctfrm_path_of_uploaded_file);
+              if($track){
+                $files=$this->copy_files($files );
+              }
           if(isset($files[$k])){
           $lead[$k]=$files[$k];    
           }
@@ -691,7 +698,7 @@ if($track === false){
     }
         if(count($lead)>0){  
     $form_arr=array('id'=>'','name'=>'BestSoft Contact Form','fields'=>$fields);
-$this->create_entry($lead,$form_arr,'be');
+$this->create_entry($lead,$form_arr,'be','',$track);
      }  
 }
 public function create_entry_ul($to_email){
@@ -721,9 +728,6 @@ public function create_entry_ul($to_email){
         return;  
       }
       $track=$this->track_form_entry('ul',$entry['form_id']);     
-if($track === false){
-    return;
-}
 
 
              $form_id=$entry['form_id'];
@@ -736,7 +740,7 @@ if($track === false){
             if(isset($fields[$k])){     
              $lead[$k]=$v;  
             }else{
-            echo $k.'<hr>';    
+          //  echo $k.'<hr>';    
             }
            
          }
@@ -747,7 +751,7 @@ if($track === false){
      if(count($lead)>0){
      $form= UFBL_Model::get_form_detail($form_id);  
     $form_arr=array('id'=>$form_id,'name'=>$form['form_title'],'fields'=>$fields);
-$this->create_entry($lead,$form_arr,'ul');
+$this->create_entry($lead,$form_arr,'ul','',$track);
      }
     
 
@@ -832,9 +836,7 @@ $this->create_entry($lead,$form_arr,'c2');
 public function create_entry_jp($post_i, $all_values, $extra_values){
     $post_id=get_the_ID(); 
     $track=$this->track_form_entry('jp',$post_id);
-if($track === false){
-    return;
-}
+
 
 $title=get_the_title(); 
      $fields=vxcf_form::get_form_fields('jp_'.$post_id); 
@@ -856,7 +858,7 @@ $title=get_the_title();
                }
                          if(count($lead)>0){  
     $form_arr=array('id'=>$post_id,'name'=>$title,'fields'=>$fields);
-$this->create_entry($lead,$form_arr,'jp');
+$this->create_entry($lead,$form_arr,'jp','',$track);
      }   
               }    
 
@@ -937,9 +939,7 @@ $this->create_entry($lead,$form_arr,'c2');
 }
 public function create_entry_fd($entry_id,$form_id){ 
 $track=$this->track_form_entry('fd',$form_id);
-if($track === false){
-    return;
-}
+
 $fields=vxcf_form::get_form_fields('fd_'.$form_id);    
 global $wpdb;
 $table=$wpdb->prefix.'frm_item_metas';
@@ -970,11 +970,11 @@ if(is_array($fields)){
      }
   }  
 //
-
-  $uploaded_files=$this->copy_files($uploaded_files_form);
-  
-   if(is_array($uploaded_files)){
-       foreach($uploaded_files as $k=>$v){
+if($track){
+  $uploaded_files_form=$this->copy_files($uploaded_files_form);
+}
+   if(is_array($uploaded_files_form)){
+       foreach($uploaded_files_form as $k=>$v){
        $lead[$k]=$v;    
        }  
    } 
@@ -984,12 +984,11 @@ $table=$wpdb->prefix.'frm_forms';
 $sql=$wpdb->prepare("Select name from $table where id=%d",$form_id);
 $form_name=$wpdb->get_var($sql);
 $form_arr=array('id'=>$form_id,'name'=>$form_name,'fields'=>$fields);
-$this->create_entry($lead,$form_arr,'fd');
+$this->create_entry($lead,$form_arr,'fd','',$track);
 
 }
 public function create_entry_gf($entry,$form){ 
 $track=$this->track_form_entry('gf',$form['id']);
-if($track === false){ return; }
 
 $fields=vxcf_form::get_form_fields('gf_'.$form['id']);        
 $uploaded_files_form =$lead=array();
@@ -1028,16 +1027,17 @@ if(is_array($file_arr)){
 }
   
 
-   
-  $uploaded_files=$this->copy_files($uploaded_files_form);
-   if(is_array($uploaded_files)){
-       foreach($uploaded_files as $k=>$v){
+   if($track){
+  $uploaded_files_form=$this->copy_files($uploaded_files_form);
+   }
+   if(is_array($uploaded_files_form)){
+       foreach($uploaded_files_form as $k=>$v){
        $lead[$k]=$v;    
        }  
    }          
 
 $form_arr=array('id'=>$form['id'],'name'=>$form['title'],'fields'=>$form['fields']);
-$this->create_entry($lead,$form_arr,'gf');
+$this->create_entry($lead,$form_arr,'gf','',$track);
 //  var_dump($lead);   die();
 }
 public function create_entry_fscf($data){
@@ -1186,10 +1186,10 @@ $options=FSCF_Util::get_form_options($form_id, true);
     }
     return $fields_arr;
 }  
-public function validate_crmperks_field($err_msg,$field_val,$field,$form_id){
-if(empty($err_msg) && !empty($field_val) && !empty($field['dup_check']) && !empty($form_id)){ 
+public function validate_crmperks_field($err_msg,$field_val,$field,$form){
+if(empty($err_msg) && !empty($field_val) && !empty($field['dup_check']) && !empty($form['id'])){ 
       $data=self::get_data_object();
-      $row=$data->search_lead_detail($field_val,'vf_'.$form_id);   
+      $row=$data->search_lead_detail($field_val,'vf_'.$form['id']);   
       //varify no duplicate fields
    if(!empty($row)){
     if($field['valid_err_msg']!=""){ 
@@ -1497,7 +1497,8 @@ public static function get_forms(){
         }
     }
   //
-  $forms_arr=isset($all_forms['cf']['forms']) && is_array($all_forms['cf']['forms']) ? $all_forms['cf']['forms'] :  array();
+  $forms_arr=isset($all_forms['cf']['forms']) && is_array($all_forms['cf']['forms']) ? $all_forms['cf']['forms'] :  array(); //do not show deleted forms
+
     if(is_array($cf_forms) && count($cf_forms)>0){
  foreach($cf_forms as $form){
      if(!empty($form->post_title)){
@@ -2295,21 +2296,21 @@ $fields_arr['vxcreated']=array('_id'=>self::$form_id.'-vxvx-vxcreated','name'=>'
 public function footer_js(){
 ?>
 <script type="text/javascript">
-jQuery(document).ready(function($){
-$(".cfx_form_main,.wpcf7-form,.wpforms-form,.gform_wrapper form").each(function(){
-var form=$(this); 
+window.addEventListener("load", function(event) {
+jQuery(".cfx_form_main,.wpcf7-form,.wpforms-form,.gform_wrapper form").each(function(){
+var form=jQuery(this); 
 var screen_width=""; var screen_height="";
  if(screen_width == ""){
  if(screen){
    screen_width=screen.width;  
  }else{
-     screen_width=$(window).width();
+     screen_width=jQuery(window).width();
  }    }  
   if(screen_height == ""){
  if(screen){
    screen_height=screen.height;  
  }else{
-     screen_height=$(window).height();
+     screen_height=jQuery(window).height();
  }    }
 form.append('<input type="hidden" name="vx_width" value="'+screen_width+'">');
 form.append('<input type="hidden" name="vx_height" value="'+screen_height+'">');

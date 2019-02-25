@@ -89,6 +89,7 @@ if(!empty($lead['vis_id'])){
 $res=$this->data->get_related_leads($lead['vis_id'],$lead['id']);
 $entries=array(); 
 $entries=apply_filters('crmperks_related_leads',$entries,$lead);
+
 $link=vxcf_form::link_to_settings('entries');
 if(!empty($res)){
     foreach($res as $v){ 
@@ -142,6 +143,7 @@ public function ajax_actions(){
 echo $data->lead_actions(array('is_star'=>$status),array($id));   
         }  
 if($action == 'add_note'){
+
 $id=(int)vxcf_form::post('entry_id');
 $note=sanitize_textarea_field(wp_unslash($_POST['note']));
 $color=(int)vxcf_form::post('note_color');
@@ -161,7 +163,10 @@ if($note_id){
 $this->note_template($note_arr);
 if(!empty($_REQUEST['note_email'])){
 $subject=vxcf_form::post('note_subject');
-$headers = array('Content-Type: text/plain; charset=UTF-8');
+$email_from=$user->user_email;
+$from_name=$user->display_name;
+//$headers = array('Content-Type: text/plain; charset=UTF-8');
+$headers = "From: \"$from_name\" <$email_from> \r\n";
 wp_mail(trim($_REQUEST['note_email']),$subject, $note,$headers);    
          }   
 }      
@@ -673,7 +678,7 @@ die();
   if(current_user_can(vxcf_form::$id."_edit_settings")){ 
       
   header('Content-disposition: attachment; filename='.date("Y-m-d",current_time('timestamp')).'.csv');
-  header('Content-Type: application/excel');
+ header('Content-Type: application/excel');
 $this->data=vxcf_form::get_data_object();
 vxcf_form::set_form_fields();
   $form_id=vxcf_form::$form_id;
@@ -698,9 +703,9 @@ vxcf_form::set_form_fields();
   $sno++;
   $_row=array($sno);
   foreach($fields as $field){
-      $val='';
-  if(!empty($field['name']) && isset($row[$field['name']])){
-      $val=maybe_unserialize($row[$field['name']]); 
+      $val=''; 
+  if(!empty($field['name']) && isset($row[$field['name'].'_field'])){
+      $val=maybe_unserialize($row[$field['name'].'_field']); 
       if(is_array($val)){
       $val=implode(' - ',$val);    
       }

@@ -49,6 +49,8 @@ public function remove_data(){
   delete_option(vxcf_form::$type."_version"); 
   delete_option(vxcf_form::$type."_updates");
   delete_option(vxcf_form::$type."_install_data");
+  delete_option('vxcf_all_forms');
+  delete_option('vxcf_all_fields');
 
   delete_option(vxcf_form::$id."_meta");
     $data=vxcf_form::get_data_object();

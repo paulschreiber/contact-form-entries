@@ -214,6 +214,11 @@ margin-left: 8px;
 .wrap .striped tr.vx_lead_1{
     background-color: #fff8e4;
 }
+.tablenav .tablenav-pages a:focus,.tablenav .tablenav-pages a:hover{border-color:#5b9dd9;color:#fff;background:#00a0d2;box-shadow:none;outline:0}
+
+.tablenav .tablenav-pages a,.tablenav-pages span.current{text-decoration:none;padding:3px 6px}
+
+.tablenav .tablenav-pages a,.tablenav-pages-navspan{display:inline-block;min-width:17px;border:1px solid #ccc;padding:3px 5px 7px;background:#e5e5e5;font-size:16px;line-height:1;font-weight:400;text-align:center}
   </style>
   <div class="vx_wrap">
   <h2  class="vx_img_head"><?php echo $this->entry_title;

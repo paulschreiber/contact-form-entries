@@ -246,15 +246,17 @@ if($status == 'unread'){
 if($status == 'stared'){
  $search.=' and l.is_star =1'; 
 }
-if(isset($_GET['type'])){  $search.=' and l.type ='.(int)vxcf_form::post('type');  }
+
+if(isset($req['type'])){  $search.=' and l.type ='.(int)vxcf_form::post('type',$req);  }
+if(isset($req['user_id'])){  $search.=' and l.user_id ='.(int)vxcf_form::post('user_id',$req);  }
 $time_key=vxcf_form::post('time',$req);
   // handle search
 $search=$this->add_time_sql($search,$time_key);   
 
     if(vxcf_form::post('search',$req)!=""){
           $search_s=esc_sql(vxcf_form::post('search',$req));
-    if(!empty($_GET['field']) && in_array($_GET['field'],$main_fields)){
-    $main_field=trim($_GET['field'],'vx');
+    if(!empty($req['field']) && in_array($req['field'],$main_fields)){
+    $main_field=trim($req['field'],'vx');
    $search.=' and l.'.$main_field.' like "%'.$search_s.'%"';         
         }else{
 $search_d='select distinct l.id from '.$leads_table.' l inner join '.$detail.' d on (l.id=d.lead_id) where '.$form_id_q;

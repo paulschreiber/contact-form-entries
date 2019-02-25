@@ -423,8 +423,8 @@ color: #666;
   </div>
   <div class="vx_group">
   <div class="vx_entry_table">
-  <?php 
-  $emails=array(); $date_field='';
+<?php 
+  $emails=array(); $date_field=''; 
   if(is_array($detail) && is_array($fields)){
   foreach($fields as $field){ //var_dump($field['basetype']); 
   
@@ -433,9 +433,9 @@ color: #666;
 $date_class='';
       $lead_field=isset($detail[$field_id]) ? $detail[$field_id] : '';
       $value='';
-      if(!empty($lead_field['value'])){
+      if(isset($lead_field['value'])){
          $value=maybe_unserialize($lead_field['value']);
-      }
+      } 
   
      if (!filter_var($value, FILTER_VALIDATE_EMAIL) === false) {
       $emails[]=$value;   
@@ -446,7 +446,6 @@ $date_class='';
       $f_name=$field['name']; 
       $type=$field['type'];  
       $req=isset($field['req']) && $field['req'] == 'true' ? 'required="required"' : '';
-      
       ?>
   <div class="entry_row">
   <div class="entry_col1">
@@ -454,7 +453,7 @@ $date_class='';
   </div>
   <div class="entry_col2">
 <div class="vx_edit">
-<?php
+<?php 
 if( in_array($type,array('textarea','chat','comma') )){  
 if(is_array($value)){
   $value=implode(',',$value);  
@@ -468,7 +467,6 @@ else if(in_array($type,array('checkbox','radio'))){
     $is_key=true;
 
    if(!empty($field['values']) && is_array($field['values'])){
-   
    foreach($field['values']  as $v){
    $val=$text=$v;
    if(is_array($v)){
@@ -482,8 +480,8 @@ else if(in_array($type,array('checkbox','radio'))){
        }
    }   
    $n=$type == 'checkbox' ? "lead[{$f_name}][]" : "lead[$f_name]";
-       $check=''; 
-     if(!empty($value)){ 
+       $check='';  
+    // if(!empty($value)){ 
      if((is_array($value)&& in_array($val,$value)) || (!is_array($value) && $val == $value)){
      $check='checked="checked"'; 
      if(empty($text)){
@@ -491,7 +489,7 @@ else if(in_array($type,array('checkbox','radio'))){
      }
      $key_val[]=$text;
      }
-     } 
+   //  } 
    ?>
    <div class="vx_check">
   <input type="<?php echo $type ?>" class="vx_input vx_check_100" name="<?php echo $n ?>" <?php echo $check ?> value="<?php echo $val ?>">
@@ -576,6 +574,7 @@ $settings = array("textarea_name"=>'lead['.$field['name'].']',"tinymce"=>array('
 wp_editor($value,$editor_id,$settings); 
 }
 else{  
+    
   if($type == 'date'){$date_field=$date_class=' vx_date_field '; } 
  $type=!in_array($type,array('email','url','tel')) ? 'text' : $type;
     ?>
@@ -759,7 +758,9 @@ do_action('vx_cf_add_meta_box',$lead,$detail);
   <div class="vx_col4"><?php echo $url  ?></div>
   <div class="clear"></div>
   </div>
-  <?php } ?>
+  <?php }
+   if(!empty($lead['ip'])){
+   ?>
        <div class="vx_row">
   <div class="vx_col3">
   <label class="left_header"><?php _e("IP", 'contact-form-entries'); ?></label>
@@ -771,6 +772,7 @@ do_action('vx_cf_add_meta_box',$lead,$detail);
   <div class="clear"></div>
   </div>
 <?php
+   }
 //var_dump($lead);
     if(!empty($lead['user_id'])){
           $userdata = get_userdata( $lead['user_id'] );
