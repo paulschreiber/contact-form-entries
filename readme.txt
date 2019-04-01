@@ -3,8 +3,8 @@ Contributors: crmperks, sbazzi
 Tags: contact form 7, contact form 7 database, contact form db, save contact form, contact form 7 entries
 Requires at least: 3.8
 Tested up to: 5.1
-Stable tag: 1.0.3
-Version: 1.0.3
+Stable tag: 1.0.4
+Version: 1.0.4
 Requires PHP: 5.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -13,7 +13,7 @@ Saves Contact Form 7, CRM Perks Forms and many other contact form submissions to
 
 == Description ==
 
-Contact Form 7 Entries Plugin automatically saves form submissions from Contact Form 7, CRM Perks Forms and many other popular contact form plugins to wordpress database when anyone submits a form. Learn more at [crmperks.com](https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme)
+Contact Form 7 Entries Plugin automatically saves form submissions from Contact Form 7, CRM Perks Forms and many other popular contact form plugins to wordpress database when anyone submits a form. Learn more our forms builder and entries at [crmperks.com](https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme)
 
 == Supported Contact Forms ==
 
@@ -157,6 +157,9 @@ Contact form 7 entries plugin allows you to save contact form 7 entries to local
 
 
 == Changelog ==
+
+= 1.0.4 =
+*	fixed empty entries(entry_details table creation failed on some mysql servers).
 
 = 1.0.3 =
 *	fixed Export Entries feature.

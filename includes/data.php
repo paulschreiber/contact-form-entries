@@ -21,14 +21,14 @@ class vxcf_form_data{
   
   require_once(ABSPATH . '/wp-admin/includes/upgrade.php');
     
-  if ( ! empty($wpdb->charset) )
-  $charset_collate = "DEFAULT CHARACTER SET $wpdb->charset";
-  if ( ! empty($wpdb->collate) )
-  $charset_collate .= " COLLATE $wpdb->collate";
+ $charset_collate='';
+        if ( $wpdb->has_cap( 'collation' ) ) {
+            $charset_collate = $wpdb->get_charset_collate();
+        }
   
   $sql = "CREATE TABLE $table_name (
-  id bigint(20) unsigned not null auto_increment,
-  form_id varchar(50) not null,
+  `id` bigint(20) unsigned not null auto_increment,
+  `form_id` varchar(50) not null,
   `status` int(4) NOT NULL default 0,
   `type` int(4) NOT NULL DEFAULT 0,
   `is_read` BOOLEAN NOT NULL default 0,
@@ -43,27 +43,27 @@ class vxcf_form_data{
   `meta` text ,
   `created` datetime,
   `updated` datetime,
-  INDEX (form_id),
-  INDEX (status),
-  INDEX (type),
+  KEY form_id (form_id),
+  KEY status (status),
+  KEY type (type),
   PRIMARY KEY (id)
   )$charset_collate; ";
   
-   dbDelta($sql);
+  // dbDelta($sql);
    
   $table_name = $this->get_crm_table_name('detail');
   
-  $sql= "CREATE TABLE $table_name (
-  id bigint(20) unsigned not null auto_increment,
-  lead_id bigint(20) unsigned not null default 0,
+  $sql.= "CREATE TABLE $table_name (
+  `id` bigint(20) unsigned not null auto_increment,
+  `lead_id` bigint(20) unsigned not null default 0,
   `name` varchar(250) not null,
   `value` longtext ,
-  INDEX (lead_id),
-  INDEX (name),
+ KEY lead_id (lead_id),
+  KEY name (name(190)),
   PRIMARY KEY  (id)
   )$charset_collate;";
   
-   dbDelta($sql);
+ //  dbDelta($sql);
    
            ////////////////notes table
      $table_name = $this->get_crm_table_name('notes');
@@ -76,7 +76,7 @@ class vxcf_form_data{
         `email` varchar(150) NULL,   
         `note` text,
         `created` datetime,
-        INDEX (lead_id),
+        KEY lead_id (lead_id),
         PRIMARY KEY (id)
     ) $charset_collate;";
  
@@ -249,9 +249,9 @@ if($status == 'stared'){
 
 if(isset($req['type'])){  $search.=' and l.type ='.(int)vxcf_form::post('type',$req);  }
 if(isset($req['user_id'])){  $search.=' and l.user_id ='.(int)vxcf_form::post('user_id',$req);  }
-$time_key=vxcf_form::post('time',$req);
+
   // handle search
-$search=$this->add_time_sql($search,$time_key);   
+$search=$this->add_time_sql($search,$req);   
 
     if(vxcf_form::post('search',$req)!=""){
           $search_s=esc_sql(vxcf_form::post('search',$req));
@@ -403,8 +403,10 @@ if(!empty($res)){
   return array("min"=>$range_min,"max"=>$range_max,"items"=>$items,"links"=>$page_links,'result'=>$leads);
   //
   }
-public function add_time_sql($search,$time_key){
-      
+public function add_time_sql($search,$req){
+      if(is_array($req)){
+    $time_key=vxcf_form::post('time',$req);
+      }else{ $time_key=$req; }
   $time=current_time('timestamp');
 
     $offset = vxcf_form::time_offset();
@@ -426,12 +428,15 @@ public function add_time_sql($search,$time_key){
 
   break;
   case"custom":
-   
-  if(!empty($_GET['start_date'])){
-  $start_date=strtotime(vxcf_form::post('start_date').' 00:00:00');
+  $start_date='';
+   if(!is_array($req)){
+     $req=$_GET;  
+   }
+  if(!empty($req['start_date'])){
+  $start_date=strtotime(vxcf_form::post('start_date',$req).' 00:00:00');
   }
-   if(!empty($_GET['end_date'])){
-  $end_date=strtotime(vxcf_form::post('end_date').' 23:59:59');
+   if(!empty($req['end_date'])){
+  $end_date=strtotime(vxcf_form::post('end_date',$req).' 23:59:59');
    } 
   break;
   }
@@ -499,6 +504,7 @@ public function get_lead_detail($lead_id){
     $detail_table = $this->get_crm_table_name('detail');
    $sql=$wpdb->prepare("Select * from {$detail_table} where lead_id=%d",$lead_id);
   $detail_arr=$wpdb->get_results($sql,ARRAY_A);
+ 
   $detail=array();
 if(is_array($detail_arr)){
   foreach($detail_arr as $v){

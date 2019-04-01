@@ -1,7 +1,7 @@
 <?php
   if ( ! defined( 'ABSPATH' ) ) {
      exit;
- } //var_dump($fields); die();
+ } // var_dump($fields); // die();
 ?><style type="text/css">
   label span.howto { cursor: default; }
   

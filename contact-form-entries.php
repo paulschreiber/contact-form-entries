@@ -2,7 +2,7 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.0.3
+* Version: 1.0.4
 * Requires at least: 3.8
 * Tested up to: 5.1
 * Author URI: https://www.crmperks.com
@@ -15,7 +15,11 @@ if( !defined( 'ABSPATH' ) ) exit;
 
 if( !class_exists( 'vxcf_form' ) ):
 
-
+/**
+* Main class
+*
+* @since       1.0.0
+*/
 class vxcf_form {
     
 
@@ -26,7 +30,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.0.3';
+  public static  $version = '1.0.4';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -133,7 +137,8 @@ $pro_file=self::$path . 'pro/add-ons.php';
 if(file_exists($pro_file)){ include_once($pro_file); }
 $pro_file=self::$path . 'wp/crmperks-notices.php';
 if(file_exists($pro_file)){ include_once($pro_file); }
-//$forms=vxcf_form::get_forms();   
+//$forms=vxcf_form::get_forms();  
+
 }
 
 }
@@ -367,6 +372,21 @@ if($this->do_actions()){
 do_action('vx_addons_save_entry',$entry_id,$lead,'cf',$form);
 }
 $lead=apply_filters('vxcf_after_saving_addons',$lead,$entry_id,$type,$form);
+/*$upload=vxcf_form::get_upload_dir();
+foreach($lead as $k=>$v){
+ if(isset($form['fields'][$k]['type']) && $form['fields'][$k]['type'] == 'file' && !empty($v)){
+   if(is_string($v)){ $v=array($v); }
+   $files=array();
+   foreach($v as $f){
+ if(filter_var($f,FILTER_VALIDATE_URL) === false){
+    $base_url=$upload['url'];       
+  $f=$base_url.$f;     
+    }
+   $files[]=$f;    
+   }
+$lead[$k]=$files;     
+ }   
+}*/
 
 $form['form_id']=$form['id']=$form_id; 
 do_action('vxcf_entry_created',$lead,$entry_id,$form);
@@ -1207,7 +1227,7 @@ public static function file_link($file_url,$base_url=''){
             if(empty($base_url)){
 $upload=vxcf_form::get_upload_dir();
     $base_url=$upload['url'];
-            }
+            }   
   $file_url=$base_url.$file_url;     
     } 
      if(filter_var($file_url,FILTER_VALIDATE_URL)){
@@ -1720,13 +1740,28 @@ $tags=$manager->get_scanned_tags();
 if(is_array($tags)){
   foreach($tags as $tag){
      if(is_object($tag)){ $tag=(array)$tag; }
+     
    if(!empty($tag['name'])){
        $id=str_replace(' ','',$tag['name']);
-       $tag['label']=ucwords(str_replace(array('-','_')," ",$tag['name']));
-       $tag['type_']=$tag['type'];
-       $tag['type']=$tag['basetype'];
-       $tag['req']=strpos($tag['type'],'*') !==false ? 'true' : '';
-   $fields[$id]=$tag;    
+       $field=array('name'=>$id);
+       $field['label']=ucwords(str_replace(array('-','_')," ",$tag['name']));
+       $field['type_']=$tag['type'];
+       $field['type']=$tag['basetype'];
+       $field['req']=strpos($tag['type'],'*') !==false ? 'true' : '';
+       if(!empty($tag['raw_values'])){
+          $ops=array();
+           foreach($tag['raw_values'] as $v){
+               if(strpos($v,'|') !== false){
+                $v_arr=explode('|',$v); 
+                if(!isset($v_arr[1])){ $v_arr[1]=$v_arr[0]; }
+                $ops[]=array('label'=>$v_arr[0],'value'=>$v_arr[1]);  
+               }else{
+               $ops[]=array('label'=>$v,'value'=>$v);      
+               }
+           }
+         $field['values']=$ops;  
+       }
+   $fields[$id]=$field;    
    }   
   }  
 }
