@@ -3,8 +3,8 @@ Contributors: crmperks, sbazzi
 Tags: contact form 7, contact form 7 database, contact form db, save contact form, contact form 7 entries
 Requires at least: 3.8
 Tested up to: 5.1
-Stable tag: 1.0.4
-Version: 1.0.4
+Stable tag: 1.0.5
+Version: 1.0.5
 Requires PHP: 5.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -157,6 +157,9 @@ Contact form 7 entries plugin allows you to save contact form 7 entries to local
 
 
 == Changelog ==
+
+= 1.0.5 =
+*	fixed hide deleted forms from list.
 
 = 1.0.4 =
 *	fixed empty entries(entry_details table creation failed on some mysql servers).

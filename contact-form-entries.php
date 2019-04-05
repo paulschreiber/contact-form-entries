@@ -2,7 +2,7 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.0.4
+* Version: 1.0.5
 * Requires at least: 3.8
 * Tested up to: 5.1
 * Author URI: https://www.crmperks.com
@@ -30,7 +30,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.0.4';
+  public static  $version = '1.0.5';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -349,6 +349,7 @@ $entry_id=$data->get_vis_info_of_day($vis_id,$form_id,'1');
 $main['type']='0'; $main['is_read']='0';
 $entry_id=$this->create_update_lead($lead,$main,$entry_id);
 }
+/*
   //  var_dump($detail,$lead,$entry_id); die();
  $forms_arr=get_option('vxcf_all_forms',array()); 
 if(!isset($forms_arr[$type]['label'])){
@@ -366,6 +367,7 @@ $forms_fields=get_option('vxcf_all_fields',array());
 $forms_fields[$type]['fields'][$form['id']]=self::$form_fields_temp[$form_id];      
 update_option('vxcf_all_fields',$forms_fields,false);     
 }
+*/
 $main['id']=$entry_id;
 $lead['__vx_entry']=$main;
 if($this->do_actions()){
@@ -1516,10 +1518,11 @@ public static function get_forms(){
             }
         }
     }
-  //
+
   $forms_arr=isset($all_forms['cf']['forms']) && is_array($all_forms['cf']['forms']) ? $all_forms['cf']['forms'] :  array(); //do not show deleted forms
 
     if(is_array($cf_forms) && count($cf_forms)>0){
+        $forms_arr=array();
  foreach($cf_forms as $form){
      if(!empty($form->post_title)){
   $forms_arr[$form->ID]=$form->post_title;       
@@ -1701,6 +1704,7 @@ $all_forms['wp']=array('label'=>'WP Forms','forms'=>$forms);
 //$forms=json_decode($forms->post_content,true);
 }
 }
+ 
 ksort($all_forms);   
 return apply_filters('vx_entries_plugin_forms',$all_forms);
 }    

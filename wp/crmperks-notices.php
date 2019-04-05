@@ -104,7 +104,7 @@ public function review_notice() {
        $install_time['time']=current_time( 'timestamp' , 1 );
       update_option($this->option."_install_data",$install_time,false); 
    }
-   
+  // $install_time['review_closed']='';
     $time=current_time( 'timestamp' , 1 )-(3600*24);
  if(!empty($install_time) && is_array($install_time) && !empty($install_time['time']) && empty($install_time['review_closed'])){
    $time_i=(int)$install_time['time'];
@@ -112,12 +112,13 @@ public function review_notice() {
         ?>
         <div class="notice notice-info is-dismissible vxcf-review-notice" style="margin: 14px 0 -4px 0">
   <p><?php echo sprintf(__( 'You\'ve been using Contact Form Entries Plugin for some time now; we hope you love it!.%s If you do, please %s leave us a %s rating on WordPress.org%s to help us spread the word and boost our motivation.','contact-form-entries'),'<br/>','<a href="'.$this->review_link.'" target="_blank" rel="noopener noreferrer">','&#9733;&#9733;&#9733;&#9733;&#9733;','</a>'); ?></p>
-  <p><a href="<?php echo $this->review_link ?>"  target="_blank" rel="noopener noreferrer"><?php _e('Yes, you deserve it','contact-form-entries') ?></a> | <a href="#" id="vxcf_close_notice_a"><?php _e('Dismiss this notice','contact-form-entries'); ?></a></p>
+  <p><a href="<?php echo $this->review_link ?>" class="vxcf_close_notice_a"  target="_blank" rel="noopener noreferrer"><?php _e('Yes, you deserve it','contact-form-entries') ?></a> | <a href="#" class="vxcf_close_notice_a"><?php _e('Dismiss this notice','contact-form-entries'); ?></a></p>
         </div>
         <script type="text/javascript">
             jQuery( document ).ready( function ( $ ) {
-                $( document ).on( 'click', '.vxcf-review-notice #vxcf_close_notice_a', function ( e ) {
-                       e.preventDefault(); $('.vxcf-review-notice .notice-dismiss').click();
+                $( document ).on( 'click', '.vxcf_close_notice_a', function ( e ) {
+                       //e.preventDefault(); 
+                       $('.vxcf-review-notice .notice-dismiss').click();
  //$.ajax({ type: "POST", url: ajaxurl, async : false, data: {action:"vxcf_form_review_dismiss"} });          
         $.post( ajaxurl, { action: 'vxcf_form_review_dismiss' } );
                 } );

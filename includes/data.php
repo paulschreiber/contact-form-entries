@@ -550,7 +550,7 @@ return $lead;
   * 
   * @param mixed $id
   */
-  public  function delete_leads($leads){
+public  function delete_leads($leads){
   global $wpdb;
     $ids=implode(',',$leads);
   $table_name = $this->get_crm_table_name();
@@ -561,7 +561,7 @@ return $lead;
   
       $table_name = $this->get_crm_table_name('notes');
   $wpdb->query("DELETE FROM $table_name WHERE lead_id in($ids)");
-  }
+}
 public function  get_vis_info_of_day($vis_id,$form_id,$type='0'){
         global $wpdb;
  $table=$this->get_crm_table_name();
