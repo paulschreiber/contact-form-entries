@@ -233,6 +233,7 @@ foreach($forms_arr as $k=>$v){
   <li><code>sortable</code> - <?php _e('If you want table columns to be sortable, set sortable to sortable="true"', 'contact-form-entries'); ?></li>
   
   <li><code>pager</code> - <?php _e('If it is sortable, the table is also able to be paginated (e.g., pager="true")', 'contact-form-entries'); ?></li>
+  <li><code>user-id</code> - <?php _e('show entries from specific user id , leave empty for logged in user (e.g., user-id="2" , user-id="")', 'contact-form-entries'); ?></li>
 
    <li> <p><strong><?php _e('Get ShortCode', 'contact-form-entries'); ?></strong></p>
  <p> 

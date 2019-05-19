@@ -2,9 +2,9 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.0.5
+* Version: 1.0.6
 * Requires at least: 3.8
-* Tested up to: 5.1
+* Tested up to: 5.2
 * Author URI: https://www.crmperks.com
 * Plugin URI: https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/
 * Author: CRM Perks
@@ -30,7 +30,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.0.5';
+  public static  $version = '1.0.6';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -48,6 +48,7 @@ class vxcf_form {
   public static $sql_order_by='';    
   public static $forms;    
   public static $form_id;    
+  public static $user_id;    
   public static $form_id_string;    
   public static $form_fields;
   public static $form_fields_temp;
@@ -234,9 +235,12 @@ vxcf_form::$form_fields=$fields;
    $page_size=$atts['page-size'];   
   }  
  $offset=$this->time_offset(); 
-  
+  $req=array('start'=>$start,'vx_links'=>'false');
+    if(isset($atts['user-id'])){
+   $req['user_id']=!empty($atts['user-id']) ? (int)$atts['user-id'] : get_current_user_id();   
+  } 
  $data=vxcf_form::get_data_object(); 
-$entries=$data->get_entries($form_id,$limit,array('start'=>$start,'vx_links'=>'false'));
+$entries=$data->get_entries($form_id,$limit,$req);
 $leads=array();
 if(!empty($entries['result'])){
 $leads=$entries['result'];    
@@ -320,9 +324,9 @@ if(is_array($arr) && count($arr)>0){
  var_dump($tags,$arr); die();
 }
 
-public function create_entry($lead,$form,$type,$info='',$save=true){
+public function create_entry($lead,$form,$type,$info='',$save=true,$entry_id=''){
     if(!is_array($info)){ $info=array(); }
-    $entry_id='';
+
     if(is_array($lead) && count($lead)>0){
 
   $data=vxcf_form::get_data_object();
@@ -336,13 +340,17 @@ public function create_entry($lead,$form,$type,$info='',$save=true){
   $meta=get_option(vxcf_form::$id.'_meta',array());
 
   $main=$this->get_lead_info($main,$info);
+if(!empty(self::$user_id)){
+    $main['user_id']=self::$user_id;
+}
+  $main=apply_filters('vxcf_entries_plugin_before_saving_lead_main',$main,$lead,$entry_id);
 //var_dump($lead); die();
   //set self::$form_fields_temp
  vxcf_form::get_form_fields($form_id);  
 $lead=apply_filters('vxcf_entries_plugin_before_saving_lead',$lead,$main); 
-$vis_id=''; $entry_id=0;
+$vis_id=''; 
 if($save){
-if(empty($meta['cookies'])){
+if(empty($meta['cookies']) && empty($entry_id)){
 $vis_id=$this->vx_id();
 $entry_id=$data->get_vis_info_of_day($vis_id,$form_id,'1');
 } 
@@ -469,7 +477,7 @@ public function create_entry_vf($entry_id,$entry,$form){
 //$track=$this->track_form_entry('vf');
 $track= empty($form['settings']['disable_db']);
 
-return $this->create_entry($entry,$form,'vf','',$track);
+return $this->create_entry($entry,$form,'vf','',$track,$entry_id);
 } 
 public function create_entry_wp($fields, $entry, $form_id, $form_data){
 $track=$this->track_form_entry('wp',$form_id);

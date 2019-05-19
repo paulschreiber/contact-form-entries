@@ -175,6 +175,33 @@ color: #666;
     border-width: 12px;
     margin-top: -12px;
 }
+.vx_wrap .vx_note_red .crm_arrow_left{
+  background-color: #ffede8;  
+  border-color: #FF5722;
+}
+.vx_wrap .vx_note_red .crm_arrow_left:before{
+  border-right-color: #FF5722;
+}
+.vx_wrap .vx_note_red .crm_arrow_left:after{
+  border-right-color: #ffede8;
+}
+
+.vx_wrap .vx_note_red .key_info{
+  border-color: #FF5722;
+}
+.vx_wrap .vx_note_green .crm_arrow_left{
+  background-color: #e9ffea;  
+  border-color: #28b42d;
+}
+.vx_wrap .vx_note_green .crm_arrow_left:before{
+  border-right-color: #28b42d;
+}
+.vx_wrap .vx_note_green .crm_arrow_left:after{
+  border-right-color: #e9ffea;
+}
+.vx_wrap .vx_note_green .key_info{
+  border-color: #28b42d;
+}
 .vx_wrap .crm_img_div img{
     width: 100%; height: 100%;
 }
@@ -294,7 +321,7 @@ if(!empty($field['values'])){
 
      // $id=empty($lead_field['id']) ? $field['name'] : $lead_field['id']; 
       $f_name=$field['name']; 
-      $type=$field['basetype'];
+     // $type=$field['basetype'];
       $req=strpos($field['type'],'*') !==false ? 'required="required"' : '';
   
       ?>
