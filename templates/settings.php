@@ -213,7 +213,7 @@ foreach($forms_arr as $k=>$v){
   <li><code>form-id</code> - <?php _e('Specify form-id (e.g., form-id="cf_8")', 'contact-form-entries'); ?></li>
   <li><code>form-name</code> or <code>form-id</code> - <?php _e('At least one of these attributes is required, others are optional', 'contact-form-entries'); ?></li>
   <li><code>col-start</code> - <?php _e('Identify which column will start the table (e.g., col-start="2")', 'contact-form-entries'); ?></li>
-  <li><code>cols</code> - <?php _e('Specify how many columns the table will display (e.g., cols="6")', 'contact-form-entries'); ?></li>
+  <li><code>cols</code> - <?php _e('Specify how many columns the table will display (e.g., cols="6"), Do not set this parameter if you are using col-labels', 'contact-form-entries'); ?></li>
   <li><code>col-labels</code> - <?php _e('Using labels, identify which columns the table will display (e.g., col-labels="Last name, First name")', 'contact-form-entries'); ?></li>
   <li><code>font-size</code> - <?php _e('List the table font size', 'contact-form-entries'); ?></li>
   <li><code>class</code> - <?php _e('Set the class name of the table', 'contact-form-entries'); ?></li>
@@ -230,9 +230,9 @@ foreach($forms_arr as $k=>$v){
   
   <li><code>per-page</code> - <?php _e('Specify how many records the table will have per page (e.g., per-page="20")', 'contact-form-entries'); ?></li>
   
-  <li><code>sortable</code> - <?php _e('If you want table columns to be sortable, set sortable to sortable="true"', 'contact-form-entries'); ?></li>
+  <li><code>sortable</code> - <?php _e('If you want table columns to be sortable, set sortable to sortable="1"', 'contact-form-entries'); ?></li>
   
-  <li><code>pager</code> - <?php _e('If it is sortable, the table is also able to be paginated (e.g., pager="true")', 'contact-form-entries'); ?></li>
+  <li><code>pager</code> - <?php _e('If it is sortable, the table is also able to be paginated (e.g., pager="1")', 'contact-form-entries'); ?></li>
   <li><code>user-id</code> - <?php _e('show entries from specific user id , leave empty for logged in user (e.g., user-id="2" , user-id="")', 'contact-form-entries'); ?></li>
 
    <li> <p><strong><?php _e('Get ShortCode', 'contact-form-entries'); ?></strong></p>

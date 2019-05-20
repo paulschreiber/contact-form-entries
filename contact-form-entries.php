@@ -2,7 +2,7 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.0.6
+* Version: 1.0.7
 * Requires at least: 3.8
 * Tested up to: 5.2
 * Author URI: https://www.crmperks.com
@@ -15,11 +15,7 @@ if( !defined( 'ABSPATH' ) ) exit;
 
 if( !class_exists( 'vxcf_form' ) ):
 
-/**
-* Main class
-*
-* @since       1.0.0
-*/
+
 class vxcf_form {
     
 
@@ -30,7 +26,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.0.6';
+  public static  $version = '1.0.7';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -80,11 +76,14 @@ wp_register_script( 'vx-tablepager-js', self::$base_url. 'js/jquery.tablesorter.
 
 public  function setup_main(){ 
 
+ 
+
   //handling post submission.
 //  add_action("gform_entry_created", array($this, 'gf_entry_created'), 40, 2);
 // add_filter('wpcf7_mail_components', array($this, 'submission'), 999, 3);
 // add_filter('wpcf7_posted_data', array($this, 'entry_created'));
-
+// wordpress sets current user to 0 here wp-includes/rest-api.php rest_cookie_check_errors function 
+ add_action('rest_api_init', array($this, 'verify_logged_in_user'),10); 
   add_filter('wpcf7_before_send_mail', array($this, 'create_entry_cf'),10);
   //add_action('fsctf_mail_sent', array($this, 'create_entry_fscf'));
   add_action("gform_entry_created", array($this, 'create_entry_gf'), 30, 2);
@@ -127,7 +126,7 @@ add_shortcode('vx-entries', array($this, 'entries_shortcode'));
   $install->create_roles();   
   $install->create_upload_dir();   
   }
-     //plugin api
+//plugin api
 $this->plugin_api(true);
 require_once(self::$path . "includes/crmperks-cf.php");
 require_once(self::$path . "includes/plugin-pages.php");   
@@ -139,10 +138,10 @@ if(file_exists($pro_file)){ include_once($pro_file); }
 $pro_file=self::$path . 'wp/crmperks-notices.php';
 if(file_exists($pro_file)){ include_once($pro_file); }
 //$forms=vxcf_form::get_forms();  
-
 }
 
 }
+
 
 public function plugin_api($start_instance=false){
 $file=self::$path . "pro/plugin-api.php";
@@ -191,7 +190,7 @@ $fields['created']=array('name'=>'created','_id'=>'created', 'label'=> __('Creat
    $col_start=(int)$atts['col-start'];   
   
   }
-  $fields=array_splice($fields,$col_start,$col_end);
+  
     if(!empty($atts['col-labels'])){
      $col_labels=array_map('trim',array_map('strtolower',explode(',',$atts['col-labels'])));   
    if(is_array($fields) && count($fields)>0){
@@ -201,6 +200,8 @@ $fields['created']=array('name'=>'created','_id'=>'created', 'label'=> __('Creat
       }  
     }   
    }   
+  }else{
+  $fields=array_splice($fields,$col_start,$col_end);    
   } 
 
 vxcf_form::$form_fields=$fields;
@@ -282,6 +283,10 @@ $field_label= date('M-d-Y H:i:s',$field_label);
 include_once(self::$path . "templates/leads-table.php");
 return ob_get_clean();
 }
+
+public function verify_logged_in_user(){
+   self::$user_id=get_current_user_id();
+}
 public function create_entry_auto($entry=""){
 
 /*
@@ -344,7 +349,7 @@ if(!empty(self::$user_id)){
     $main['user_id']=self::$user_id;
 }
   $main=apply_filters('vxcf_entries_plugin_before_saving_lead_main',$main,$lead,$entry_id);
-//var_dump($lead); die();
+//var_dump($main); die();
   //set self::$form_fields_temp
  vxcf_form::get_form_fields($form_id);  
 $lead=apply_filters('vxcf_entries_plugin_before_saving_lead',$lead,$main); 
@@ -437,8 +442,9 @@ if(!empty($entry_id) && !empty($meta) && is_array($meta)){
 }
 }
 public function get_lead_info($info,$meta_info=array()){
-      $current_user = wp_get_current_user();
-  $info['user_id']=$current_user->ID;
+
+  $info['user_id']=get_current_user_id();
+
   if(!empty($meta_info['ip'])){
   $ip=$meta_info['ip'];
   }else{
