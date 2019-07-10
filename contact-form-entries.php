@@ -2,7 +2,7 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.0.7
+* Version: 1.0.8
 * Requires at least: 3.8
 * Tested up to: 5.2
 * Author URI: https://www.crmperks.com
@@ -26,7 +26,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.0.7';
+  public static  $version = '1.0.8';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -114,7 +114,7 @@ add_shortcode('vx-entries', array($this, 'entries_shortcode'));
   if(self::$db_version != self::$version && current_user_can( 'manage_options' )){
   $data=vxcf_form::get_data_object();
   $data->update_table();
-  update_option(vxcf_form::$type."_version", self::$version);
+  
   
 /*  $install_data=get_option(vxcf_form::$type."_install_data");
   if(empty($install_data)){
@@ -124,7 +124,26 @@ add_shortcode('vx-entries', array($this, 'entries_shortcode'));
   require_once(self::$path . "includes/install.php"); 
   $install=new vxcf_form_install();
   $install->create_roles();   
-  $install->create_upload_dir();   
+  $install->create_upload_dir();  
+$meta=$this->get_meta();  
+  if(!empty($meta['save_forms'])){
+ $forms=vxcf_form::get_forms();
+ $forms_arr=vxcf_form::forms_list($forms);
+$new_ids=array_diff_key($forms_arr,$meta['save_forms']);
+if(!empty($new_ids)){
+   $disable=array();
+    foreach($new_ids as $k=>$v){
+     $disable[$k]='yes';   
+    }
+    $meta['disable_track']=$disable;
+    unset($meta['save_forms']);
+    self::$meta=$meta;
+ update_option(vxcf_form::$id.'_meta',$meta);   
+}
+}
+
+update_option(vxcf_form::$type."_version", self::$version);
+ 
   }
 //plugin api
 $this->plugin_api(true);
@@ -330,10 +349,9 @@ if(is_array($arr) && count($arr)>0){
 }
 
 public function create_entry($lead,$form,$type,$info='',$save=true,$entry_id=''){
-    if(!is_array($info)){ $info=array(); }
+if(!is_array($info)){ $info=array(); }
 
-    if(is_array($lead) && count($lead)>0){
-
+if(is_array($lead) && count($lead)>0){
   $data=vxcf_form::get_data_object();
   $form_id=$type.'_'.$form['id'];
   $main=array('form_id'=>$form_id);
@@ -344,8 +362,10 @@ public function create_entry($lead,$form,$type,$info='',$save=true,$entry_id='')
   }
   $meta=get_option(vxcf_form::$id.'_meta',array());
 
+  if(empty($meta['ip'])){
   $main=$this->get_lead_info($main,$info);
-if(!empty(self::$user_id)){
+  }
+  if(!empty(self::$user_id)){
     $main['user_id']=self::$user_id;
 }
   $main=apply_filters('vxcf_entries_plugin_before_saving_lead_main',$main,$lead,$entry_id);
@@ -362,6 +382,7 @@ $entry_id=$data->get_vis_info_of_day($vis_id,$form_id,'1');
 $main['type']='0'; $main['is_read']='0';
 $entry_id=$this->create_update_lead($lead,$main,$entry_id);
 }
+
 /*
   //  var_dump($detail,$lead,$entry_id); die();
  $forms_arr=get_option('vxcf_all_forms',array()); 
@@ -443,15 +464,14 @@ if(!empty($entry_id) && !empty($meta) && is_array($meta)){
 }
 public function get_lead_info($info,$meta_info=array()){
 
-  $info['user_id']=get_current_user_id();
-
-  if(!empty($meta_info['ip'])){
-  $ip=$meta_info['ip'];
-  }else{
-   $ip=$this->get_ip();   
-  }
-  $info['ip']=$ip;
-   $resolution="";
+$info['user_id']=get_current_user_id();
+if(!empty($meta_info['ip'])){
+$ip=$meta_info['ip'];
+}else{
+$ip=$this->get_ip();   
+}
+$info['ip']=$ip;
+$resolution="";
 if(isset($_POST['vx_width'])){
 $width=vxcf_form::post('vx_width');
 $height=vxcf_form::post('vx_height');
@@ -475,7 +495,7 @@ $info['os']=$bro_info['platform'];
 if(!empty($meta_info['vis_id'])){
 $info['vis_id']=$meta_info['vis_id'];
 }else{
-    $info['vis_id']=$this->vx_id();
+$info['vis_id']=$this->vx_id();
 }
 return $info;
 }
@@ -555,7 +575,7 @@ $uploaded_files=$this->copy_files($uploaded_files);
 $form_title=$form->title();
 $tags=vxcf_form::get_form_fields('cf_'.$form_id); 
 
-//var_dump($tags); die();
+
  $lead=array();
 if(is_array($tags)){
   foreach($tags as $k=>$v){
@@ -603,6 +623,7 @@ $uploaded_files=$this->copy_files($uploaded_files);
        $lead[$k]=$v;    
        } 
        }
+     
 $form_arr=array('id'=>$form_id,'name'=>$form_title,'fields'=>$data['data']['fields']);
 $this->create_entry($lead,$form_arr,'na','',$track);  
     
@@ -1169,13 +1190,15 @@ public function get_forms_jetpack(){
 public function get_meta(){
 if(is_null(self::$meta)){
 self::$meta=get_option(vxcf_form::$id.'_meta',array());
-}
+ }
 return self::$meta;   
 }
 public function track_form_entry($type,$form_id){
 $meta=$this->get_meta();
 $res=true;
-if(!empty($meta['forms_saved']) && empty($meta['save_forms'][$type.'_'.$form_id])){
+if(!empty($meta['save_forms']) && empty($meta['save_forms'][$type.'_'.$form_id])){
+ $res=false; 
+}else if(!empty($meta['disable_track']) && !empty($meta['disable_track'][$type.'_'.$form_id])){
  $res=false;   
 }
 return $res;
@@ -1721,7 +1744,19 @@ $all_forms['wp']=array('label'=>'WP Forms','forms'=>$forms);
  
 ksort($all_forms);   
 return apply_filters('vx_entries_plugin_forms',$all_forms);
-}    
+} 
+public static function forms_list($forms){
+     $forms_arr=array();
+     foreach($forms as $k=>$v){
+     if(in_array($k,array('vf'))){ continue; }
+     if(!empty($v['forms'])){
+   foreach($v['forms'] as $form_id=>$form_title){
+     $forms_arr[$k.'_'.$form_id]=$v['label'].' - '.$form_title;    
+   }       
+     }
+ }
+ return $forms_arr;
+}   
 /**
   * form fields
   * 

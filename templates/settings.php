@@ -3,15 +3,7 @@
      exit;
  } 
  $forms=vxcf_form::get_forms();
- $forms_arr=array();
- foreach($forms as $k=>$v){
-     if(in_array($k,array('vf'))){ continue; }
-     if(!empty($v['forms'])){
-   foreach($v['forms'] as $form_id=>$form_title){
-     $forms_arr[$k.'_'.$form_id]=$v['label'].' - '.$form_title;    
-   }       
-     }
- }
+ $forms_arr=vxcf_form::forms_list($forms);
 ?>
 <style type="text/css">
   .crm_fields_table{
@@ -131,34 +123,20 @@ $(".sf_login").click(function(e){
   ?> 
   <tr>
   <th scope="row"><label for="vx_form_cf">
-  <?php _e('Track Forms', 'contact-form-entries'); ?>
+  <?php _e('Do Not Track Forms', 'contact-form-entries'); ?>
   </label>
   </th>
   <td>
 <?php
-$saved_forms=!empty($meta['save_forms']) ? $meta['save_forms'] : array();
-/*$all_forms['cf']='Contact Form 7'; 
-$all_forms['fd']='Formidable Forms'; 
-//$all_forms['fs']='Fast Secure Contact Forms'; 
-$all_forms['jp']='Jetpack Contact Forms'; 
-$all_forms['na']='Ninja Forms'; 
-$all_forms['qu']='Quform Forms'; 
-$all_forms['c2']='CForms2 Forms'; 
-$all_forms['ca']='Caldera Forms'; 
-$all_forms['ul']='Ultimate Contact Form Builder';
-$all_forms['be']='BestSoft Contact Forms';  
-$all_forms['gf']='Gravity Forms';  
-$all_forms['vf']='CRM Forms';  
-$all_forms['wc']='WooCommerce';  
-$all_forms['wp']='WP Forms';  
-*/
+$saved_forms=!empty($meta['disable_track']) ? $meta['disable_track'] : array();
+
 foreach($forms_arr as $k=>$v){
+
 ?>
-<p><label for="vx_form_<?php echo $k ?>"><input type="checkbox" name="meta[save_forms][<?php echo $k ?>]" value="yes" <?php if(!isset($meta['forms_saved']) || vxcf_form::post($k,$saved_forms) == "yes"){echo 'checked="checked"';} ?> id="vx_form_<?php echo $k ?>"><?php echo $v; ?></label></p>
+<p><label for="vx_form_<?php echo $k ?>"><input type="checkbox" name="meta[disable_track][<?php echo $k ?>]" value="yes" <?php if(vxcf_form::post($k,$saved_forms) == "yes"){echo 'checked="checked"';} ?> id="vx_form_<?php echo $k ?>"><?php echo $v; ?></label></p>
 <?php 
 } 
 ?>
-<input type="hidden" name="meta[forms_saved]" value="yes"> 
 </td>
 </tr>
 <?php } ?>  

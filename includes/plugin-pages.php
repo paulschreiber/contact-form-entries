@@ -11,7 +11,7 @@ if( !class_exists( 'vxcf_form_pages' ) ) {
 * @since       1.0.0
 */
 class vxcf_form_pages{
-public $entry_title='Form Entries';
+public $entry_title='Form Entries of';
 public $entry_title_small='Entries';
 public $entry_title_single='Entry';
 public $data;
@@ -675,10 +675,9 @@ die();
  
    if(vxcf_form::post('vx_tab_action_'.vxcf_form::$id)=="export_log"){
   check_admin_referer('vx_nonce','vx_nonce');
-  if(current_user_can(vxcf_form::$id."_edit_settings")){ 
-      
-  header('Content-disposition: attachment; filename='.date("Y-m-d",current_time('timestamp')).'.csv');
- header('Content-Type: application/excel');
+  if(current_user_can(vxcf_form::$id."_edit_settings")){      
+header('Content-disposition: attachment; filename='.date("Y-m-d",current_time('timestamp')).'.csv');
+header('Content-Type: application/excel');
 $this->data=vxcf_form::get_data_object();
 vxcf_form::set_form_fields();
   $form_id=vxcf_form::$form_id;
