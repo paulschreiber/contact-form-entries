@@ -243,7 +243,7 @@ if($status == 'unread'){
  $search.=' and l.is_read =0'; 
 }
 
-if($status == 'stared'){
+if($status == 'starred'){
  $search.=' and l.is_star =1'; 
 }
 

@@ -577,6 +577,7 @@ else{
     
   if($type == 'date'){$date_field=$date_class=' vx_date_field '; } 
  $type=!in_array($type,array('email','url','tel')) ? 'text' : $type;
+$value=is_array($value) ? implode(', ',$value) : $value;  
     ?>
   <input type="<?php echo $type ?>" id="vx_<?php echo $field['name']; ?>" <?php echo $req ?> class="vx_input vx_input_100 <?php echo $date_class ?>" name="lead[<?php echo $f_name ?>]" autocomplete="off" value="<?php echo htmlentities($value);  ?>" >
    <?php

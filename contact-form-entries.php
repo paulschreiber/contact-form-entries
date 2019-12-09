@@ -2,9 +2,9 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.0.8
+* Version: 1.0.9
 * Requires at least: 3.8
-* Tested up to: 5.2
+* Tested up to: 5.3
 * Author URI: https://www.crmperks.com
 * Plugin URI: https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/
 * Author: CRM Perks
@@ -26,7 +26,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.0.8';
+  public static  $version = '1.0.9';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -75,7 +75,6 @@ wp_register_script( 'vx-tablepager-js', self::$base_url. 'js/jquery.tablesorter.
 }
 
 public  function setup_main(){ 
-
  
 
   //handling post submission.
@@ -109,7 +108,7 @@ public  function setup_main(){
 add_shortcode('vx-entries', array($this, 'entries_shortcode'));  
 
   if(is_admin()){
-//load_plugin_textdomain('contact-form-entries', FALSE,  self::plugin_dir_name(). '/languages/' );     
+load_plugin_textdomain('contact-form-entries', FALSE,  self::plugin_dir_name(). '/languages/' );     
   self::$db_version=get_option(vxcf_form::$type."_version");
   if(self::$db_version != self::$version && current_user_can( 'manage_options' )){
   $data=vxcf_form::get_data_object();
@@ -345,7 +344,7 @@ if(is_array($arr) && count($arr)>0){
   $data=vxcf_form::get_data_object();
   $lead=$data->create_lead($arr,$form_id);
 }
- var_dump($tags,$arr); die();
+ //var_dump($tags,$arr); die();
 }
 
 public function create_entry($lead,$form,$type,$info='',$save=true,$entry_id=''){
@@ -364,6 +363,11 @@ if(is_array($lead) && count($lead)>0){
 
   if(empty($meta['ip'])){
   $main=$this->get_lead_info($main,$info);
+  }else{
+   $url_temp=$this->get_lead_info(array());
+   if(!empty($url_temp['url'])){
+    $main['url']=$url_temp['url'];   
+   }   
   }
   if(!empty(self::$user_id)){
     $main['user_id']=self::$user_id;
@@ -445,9 +449,10 @@ if($detail_db[$k]['value'] != $v){
    }else{
   $insert[$k]=$v;      
    }     
-} }   
+} }  
 $data->update_lead($update,$insert,$entry_id,$lead);
 }
+
 return $entry_id;
 }
 public static function update_entry_meta($entry_id,$meta_key,$meta){
@@ -580,12 +585,22 @@ $tags=vxcf_form::get_form_fields('cf_'.$form_id);
 if(is_array($tags)){
   foreach($tags as $k=>$v){
       $name=$v['name'];
-$val = $submission->get_posted_data($name);
-
+$val=$submission->get_posted_data($name);
  if(isset($uploaded_files[$name])){
   $val=$uploaded_files[$name];
+   }
+   if( !empty($val) && isset($v['basetype']) && $v['basetype'] == 'mfile' && function_exists('dnd_get_upload_dir') ){
+      $dir=dnd_get_upload_dir(); 
+     $f_arr=array();
+      foreach($val as $file){
+     $file_name=explode('/',$file);
+     if(count($file_name)>1){
+      $f_arr[]=$dir['upload_url'].'/'.$file_name[1];    
+     }
+      }  
+   $val=$f_arr;   
    }          
-  $lead[$k]=$val;          
+  $lead[$k]=wp_unslash($val);          
   }  
 }
 
@@ -616,15 +631,14 @@ if(!empty($data['fields'])){
      } 
   }
 if($track){
-$uploaded_files=$this->copy_files($uploaded_files); 
+$upload_files=$this->copy_files($upload_files); 
 } 
-       if(is_array($uploaded_files)){
-       foreach($uploaded_files as $k=>$v){
+       if(is_array($upload_files)){
+       foreach($upload_files as $k=>$v){
        $lead[$k]=$v;    
        } 
-       }
-     
-$form_arr=array('id'=>$form_id,'name'=>$form_title,'fields'=>$data['data']['fields']);
+       }  
+$form_arr=array('id'=>$form_id,'name'=>$form_title,'fields'=>$data['fields']);
 $this->create_entry($lead,$form_arr,'na','',$track);  
     
 }
@@ -2643,7 +2657,7 @@ public function vx_id(){
   * get data object
   * 
   */
-  public static function  get_data_object(){
+  public static function  get_data_object(){ 
   require_once(self::$path . "includes/data.php");     
   if(!is_object(self::$data))
   self::$data=new vxcf_form_data();
