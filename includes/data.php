@@ -341,13 +341,14 @@ if(!empty($search)){
 }
 $sql.=" group by l.id ";
 $sql.=" order by $order_by $order "; 
+//$per_page=20;
  if($per_page!='all'){
  $sql.=" LIMIT {$start},{$per_page}";  
  }
 // $sql='SELECT l.* from wp_vxcf_leads l left join wp_vxcf_leads_detail d on (l.id = d.lead_id) left join tickets t on(l.id=t.entry_id) where l.form_id ="cf_6" and l.status ="0" and d.value like "%bioinfo35@gmail.com%" and d.name = "your-email" and t.status ="open" and t.priority="normal" group by d.lead_id order by l.id DESC LIMIT 0,20';
 //echo $sql.'<hr>';            
 $results=$wpdb->get_results($sql, ARRAY_A);  
- //var_dump($results); die();   
+//echo json_encode($results); die();   
  // $re = $wpdb->get_results('SELECT FOUND_ROWS();', ARRAY_A);     
 //  
              $leads=array();
@@ -366,7 +367,7 @@ if(!empty(vxcf_form::$form_fields)){
  $sql_d.=' FROM '.$detail.' where lead_id in('.implode(',',$ids).')  GROUP BY `lead_id` ';   
 
 $res= $wpdb->get_results($sql_d, ARRAY_A);
-
+//echo $sql_d.'-----<hr>'.json_encode($res).'<-------'.$wpdb->last_error.'----<hr>'; //die();
 if(!empty($res)){
     foreach($res as $v){
    if(!empty($v['lead_id']) && !empty($leads[$v['lead_id']])){

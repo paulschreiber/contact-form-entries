@@ -2,7 +2,7 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.0.9
+* Version: 1.1.0
 * Requires at least: 3.8
 * Tested up to: 5.3
 * Author URI: https://www.crmperks.com
@@ -26,7 +26,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.0.9';
+  public static  $version = '1.1.0';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -178,6 +178,7 @@ self::$plugin->instance();
 } 
 }
 public function entries_shortcode($atts){
+ 
   $form_id='';
   if(!empty($atts['form-id'])){
    $form_id=$atts['form-id'];   
@@ -298,7 +299,7 @@ $field_label= date('M-d-Y H:i:s',$field_label);
  
   } die('-----------');*/
   ob_start();
-include_once(self::$path . "templates/leads-table.php");
+include(self::$path . "templates/leads-table.php");
 return ob_get_clean();
 }
 

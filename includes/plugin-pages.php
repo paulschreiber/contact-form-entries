@@ -683,16 +683,16 @@ vxcf_form::set_form_fields();
   $form_id=vxcf_form::$form_id;
   $data=vxcf_form::get_entries($form_id,'all');
   $leads=$data['result'];
-
+$extra_keys=array('vxbrowser'=>'browser','vxurl'=>'url','vxscreen'=>'screen','vxcreated'=>'created','vxupdated'=>'updated');
   $fields=vxcf_form::$form_fields;
-//var_dump($leads,$fields); die();
+//var_dump($fields); die();
  $field_titles=array('#');
   if(is_array($fields)){
       foreach($fields as $field){
        $field_titles[]=$field['label'];   
       }
   }
-  $field_titles[]=__('Created','contact-form-entries');
+ // $field_titles[]=__('Created','contact-form-entries');
  
   $fp = fopen('php://output', 'w');
   fputcsv($fp, $field_titles);
@@ -701,14 +701,22 @@ vxcf_form::set_form_fields();
       $row=!empty($lead_row['detail']) ? $lead_row['detail'] : array();
   $sno++;
   $_row=array($sno);
-  foreach($fields as $field){
+  foreach($fields as $k=>$field){
       $val=''; 
   if(!empty($field['name']) && isset($row[$field['name'].'_field'])){
       $val=maybe_unserialize($row[$field['name'].'_field']); 
-      if(is_array($val)){
+  }
+  if(isset($extra_keys[$k]) && isset($lead_row[$extra_keys[$k]])){
+      if($k == 'vxbrowser'){
+    $val=isset($lead_row['browser']) ?  $lead_row['browser'].' ' : '';     
+    $val.=isset($lead_row['os']) ?  $lead_row['os'] : '';     
+      }else{
+   $val=$lead_row[$extra_keys[$k]];
+      }   
+  }
+    if(is_array($val)){
       $val=implode(' - ',$val);    
       }
-  }
       $_row[]=$val; 
     
   }

@@ -11,7 +11,7 @@ public $option='vxcf_form';
 public function __construct(){
 add_filter('vx_entries_plugin_tabs', array($this, 'add_section_cf'),99);
 add_filter( 'plugin_row_meta', array( $this , 'pro_link' ), 10, 2 );
-add_action( 'after_plugin_row_'.vxcf_form::get_slug(), array( $this, 'plugin_msgs' ),99,3 );
+//add_action( 'after_plugin_row_'.vxcf_form::get_slug(), array( $this, 'plugin_msgs' ),99,3 );
 add_action( 'wp_ajax_vxcf_form_review_dismiss', array( $this, 'review_dismiss' ) );
 add_action('add_section_vxcf_leads', array($this, 'free_plugins_notice'),99);
 

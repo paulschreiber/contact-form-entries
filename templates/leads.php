@@ -584,7 +584,7 @@ $delete_link=$entry_link_f.'&'.vxcf_form::$id.'_action=delete&vx_action='.$nonce
 <form method="post" id="vx_fields_form">
 <div style="max-height: 300px; overflow: auto;">
 <?php
-  if(is_array($fields_arr) && count($fields_arr)>0){
+  if( !empty($fields_arr) && is_array($fields_arr) ){
   foreach($fields_arr as $field){  
 ?>
 <div class="vx_td_border_bottom">
