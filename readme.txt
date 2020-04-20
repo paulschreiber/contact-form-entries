@@ -2,7 +2,7 @@
 Contributors: crmperks, sbazzi
 Tags: contact form 7, contact form 7 database, contact form db, save contact form, contact form 7 entries
 Requires at least: 3.8
-Tested up to: 5.3
+Tested up to: 5.4
 Stable tag: 1.1.0
 Version: 1.1.0
 Requires PHP: 5.3

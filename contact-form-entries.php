@@ -4,7 +4,7 @@
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
 * Version: 1.1.0
 * Requires at least: 3.8
-* Tested up to: 5.3
+* Tested up to: 5.4
 * Author URI: https://www.crmperks.com
 * Plugin URI: https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/
 * Author: CRM Perks
