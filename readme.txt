@@ -1,10 +1,10 @@
 === Contact Form Entries ===
 Contributors: crmperks, sbazzi
-Tags: contact form 7, contact form 7 database, contact form db, save contact form, contact form 7 entries
+Tags: contact form 7, contact form 7 database, contact form db, save contact form, wpforms database
 Requires at least: 3.8
 Tested up to: 5.4
-Stable tag: 1.1.0
-Version: 1.1.0
+Stable tag: 1.1.1
+Version: 1.1.1
 Requires PHP: 5.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -66,7 +66,8 @@ You can add notes to any contact form entry and you can edit old notes. Also you
 <p><strong>Premium Version Features.</strong></p>
 <p>Following features are available in premium add-ons <a href="https://www.crmperks.com/plugins/contact-form-plugins/crm-forms/?utm_source=wordpress&utm_medium=directory&utm_campaign=readme">Get all add-ons and CRM Perks forms</a>.</p>
 <ul>
-<li>Compare daily entries, visitors and partial entries in graphical forms.</li>
+<li>Don't miss out on any potential leads. Collect data in real time as it is entered on your forms.</li>
+<li>Search field and Download CSV button for front end entries table.</li>
 <li>Google Analytics Parameters and Geolocation of a visitor who submitted the form.</li>
 <li>Lookup lead's email and phone using email and phone lookup apis.</li>
 <li>20+ premium add-ons</li>
@@ -147,6 +148,13 @@ Yes, You can search contact form 7 submissions by a specific field or all fields
 
 You can select this in plugin settings.
 
+= WP Forms database =
+
+* Simply install our Contact form entries plugin.
+* Submit any wp form, it will saved in wordpress database.
+* You can view and edit any entry in wordpress.
+* Add Notes and send emails to any entry from wordpress.
+
 = Contact form advanced database =
 
 This contact form entries plugin not only saves contact form submissions, it has more advanced features like
@@ -166,6 +174,12 @@ This contact form entries plugin not only saves contact form submissions, it has
 * in wordpress go to "CRM Entries" menu then select your form, plugin will show all entries in table form.
 * you can star or Un-star any entry.  
 
+= WPforms database addon =
+
+* Save all WPforms submissions in wordpress database. 
+* View and edit any entry in wordpress.
+* Display WPforms entries from database to front end on any wordpress page.  
+
 
 = How can i display contact form entries on front end =
 
@@ -174,6 +188,12 @@ You can display entries on front end with a simple shotcode available in setting
 = How can i view all contact form 7 entries =
 
 from main wordpress menu select "CRM Entries" then you can view any entry.
+
+= WPforms save to database =
+
+* Install our entries plugin for saving WPforms submissions to database. 
+* Plugin automatically saves all WPforms entries in wordpress database.
+* You can add notes and send emails to WPforms entries.  
 
 = CRM Entries Plugin =
 
@@ -196,6 +216,9 @@ Contact form 7 entries plugin allows you to save contact form 7 entries to local
 
 
 == Changelog ==
+
+= 1.1.1 =
+*	fixed "per-page" option in front end entries table.
 
 = 1.1.0 =
 *	fixed "source and screen fields in csv file".

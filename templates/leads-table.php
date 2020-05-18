@@ -2,6 +2,15 @@
   if ( ! defined( 'ABSPATH' ) ) {
      exit;
  } 
+if(!empty($search)){
+ ?>
+<p class="vx_table_actions">
+<input type="search" placeholder="<?php _e('Search', 'contact-form-entries'); ?>"  data-column="all" class="vx_search">
+<?php
+if(!empty($export)){ ?><a class="vx_export_btn" href="?vx_crm_form_action=download_csv&vx_crm_key=<?php echo $export ?>"><?php _e('Download CSV', 'contact-form-entries'); ?></a> <?php } ?>
+ </p>
+<?php
+}
 ?>
  <table <?php echo $class.' '.$css ?> cellspacing="0" <?php echo $table_id ?>>
   <thead>
@@ -137,12 +146,25 @@ $field_label= date('M-d-Y H:i:s',$field_label);
         $table=$('.vx_entries_table');
 
         $table.tablesorter({
-            //widgets        : ['zebra', 'columns'],
+       
           //  theme : 'blue',
-            usNumberFormat : false,
+   <?php
+   if(!empty($search)){
+   ?> 
+       widgets        : ['filter'],     
+    widgetOptions : {
+       filter_external : '.vx_search',
+      filter_columnFilters: false,
+      filter_searchDelay : 100,
+      filter_hideEmpty : true,
+    },
+    <?php } ?>
+       usNumberFormat : false,
             sortReset      : true,
             sortRestart    : true
         });
+        
+   /// $.tablesorter.filter.bindSearch( $table, $('#vx_search') );   
        <?php
    if(!empty($atts['pager'])){
   ?>   
@@ -164,6 +186,7 @@ $field_label= date('M-d-Y H:i:s',$field_label);
     <?php
    }
     ?>
+
     //////
     });
     </script>
@@ -171,11 +194,17 @@ $field_label= date('M-d-Y H:i:s',$field_label);
         }
      ?>  
   <style type="text/css">
+  .vx_export_btn{
+      float: right;
+  }
 /* pager wrapper, div */
 .vx_pager {
   padding: 5px;
 }
-
+.vx_entries_table{
+    display: block;
+    overflow: auto;
+}
 /* pager navigation arrows */
 .vx_pager img {
   vertical-align: middle;
@@ -207,6 +236,9 @@ $field_label= date('M-d-Y H:i:s',$field_label);
 .vx_pager select {
   margin: 0;
   padding: 0;
+}
+.tablesorter .filtered {
+  display: none;
 }
 .tablesorter-default .header,
 .tablesorter-default .tablesorter-header {

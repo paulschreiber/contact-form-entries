@@ -22,6 +22,7 @@ public static $related_leads;
 *  
 */
 public function __construct(){
+
 $this->data=vxcf_form::get_data_object();
 
 global $pagenow; 
@@ -38,6 +39,7 @@ add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 add_action( 'vx_cf_meta_boxes_right', array($this,'related_entries_cf'),10,3 );
 add_action( 'vx_cf_add_meta_box_right', array($this,'add_meta_box'),9,2 );
   //creates the subnav left menu
+add_filter("admin_init", array($this, 'setup_plugin'), 2);
 add_filter("admin_menu", array($this, 'main_menu'), 27);
 add_filter('vx_entries_plugin_tabs', array($this, 'create_menu'), 16);
 add_filter('vx_entries_plugin_tab_sections', array($this, 'settings_section'), 10); 
@@ -57,6 +59,7 @@ add_filter('wp_privacy_personal_data_exporters',array($this,'export_personal_dat
 add_filter('wp_privacy_personal_data_erasers',array($this,'remove_personal_data'));
 
 }
+
 
 public function mapping_page_settings(){
     
@@ -534,7 +537,7 @@ add_action("load-$hook", array($this,'screen_options')); //toplevel_page_vxcf_le
 //2=hide cols
 //3=update_hidden_cols
 }
-$this->setup_plugin();
+//$this->setup_plugin();
   } 
   /**
   * plugin admin features
@@ -675,57 +678,14 @@ die();
  
    if(vxcf_form::post('vx_tab_action_'.vxcf_form::$id)=="export_log"){
   check_admin_referer('vx_nonce','vx_nonce');
-  if(current_user_can(vxcf_form::$id."_edit_settings")){      
-header('Content-disposition: attachment; filename='.date("Y-m-d",current_time('timestamp')).'.csv');
-header('Content-Type: application/excel');
-$this->data=vxcf_form::get_data_object();
+  if(current_user_can(vxcf_form::$id."_edit_settings")){ 
+
+// get charset
+//$charset = get_bloginfo( 'charset' );     
+//$this->data=vxcf_form::get_data_object();
 vxcf_form::set_form_fields();
   $form_id=vxcf_form::$form_id;
-  $data=vxcf_form::get_entries($form_id,'all');
-  $leads=$data['result'];
-$extra_keys=array('vxbrowser'=>'browser','vxurl'=>'url','vxscreen'=>'screen','vxcreated'=>'created','vxupdated'=>'updated');
-  $fields=vxcf_form::$form_fields;
-//var_dump($fields); die();
- $field_titles=array('#');
-  if(is_array($fields)){
-      foreach($fields as $field){
-       $field_titles[]=$field['label'];   
-      }
-  }
- // $field_titles[]=__('Created','contact-form-entries');
- 
-  $fp = fopen('php://output', 'w');
-  fputcsv($fp, $field_titles);
-  $sno=0;
-  foreach($leads as $lead_row){
-      $row=!empty($lead_row['detail']) ? $lead_row['detail'] : array();
-  $sno++;
-  $_row=array($sno);
-  foreach($fields as $k=>$field){
-      $val=''; 
-  if(!empty($field['name']) && isset($row[$field['name'].'_field'])){
-      $val=maybe_unserialize($row[$field['name'].'_field']); 
-  }
-  if(isset($extra_keys[$k]) && isset($lead_row[$extra_keys[$k]])){
-      if($k == 'vxbrowser'){
-    $val=isset($lead_row['browser']) ?  $lead_row['browser'].' ' : '';     
-    $val.=isset($lead_row['os']) ?  $lead_row['os'] : '';     
-      }else{
-   $val=$lead_row[$extra_keys[$k]];
-      }   
-  }
-    if(is_array($val)){
-      $val=implode(' - ',$val);    
-      }
-      $_row[]=$val; 
-    
-  }
-
-  $_row[]=$lead_row['created'];
-
-  fputcsv($fp, $_row);    
-  }
-  fclose($fp);
+vxcf_form::download_csv($form_id);
   die();
   }}
   

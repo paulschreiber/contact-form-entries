@@ -350,7 +350,7 @@ $sql.=" order by $order_by $order ";
 $results=$wpdb->get_results($sql, ARRAY_A);  
 //echo json_encode($results); die();   
  // $re = $wpdb->get_results('SELECT FOUND_ROWS();', ARRAY_A);     
-//  
+
              $leads=array();
 if(isset($results) && is_array($results) && count($results)>0){
 foreach($results as $v){ 
@@ -362,11 +362,13 @@ if(!empty(vxcf_form::$form_fields)){
  $sql_d="SELECT id,lead_id";   
  foreach(vxcf_form::$form_fields as $k=>$v){
      if(!empty($v['is_main'])){ continue; }
+     $k=$v['name'];
  $sql_d.=", MAX(if(`name`='$k', `value`, null )) AS '".$k."_field'";   
  }
  $sql_d.=' FROM '.$detail.' where lead_id in('.implode(',',$ids).')  GROUP BY `lead_id` ';   
 
 $res= $wpdb->get_results($sql_d, ARRAY_A);
+//var_dump($res,vxcf_form::$form_fields);  
 //echo $sql_d.'-----<hr>'.json_encode($res).'<-------'.$wpdb->last_error.'----<hr>'; //die();
 if(!empty($res)){
     foreach($res as $v){

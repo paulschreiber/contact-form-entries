@@ -2,7 +2,7 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/jetpack/">JetPack Contact Form</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="http://codecanyon.net/item/quform-wordpress-form-builder/706149">Quform</a>, <a href="https://wordpress.org/plugins/cforms2/">cformsII</a>, <a href="https://wordpress.org/plugins/contact-form-plugin/">Contact Form by BestWebSoft</a>, <a href="https://wordpress.org/plugins/ultimate-form-builder-lite/">Ultimate Form Builder</a>, <a href="https://wordpress.org/plugins/caldera-forms/">Caldera Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.1.0
+* Version: 1.1.1
 * Requires at least: 3.8
 * Tested up to: 5.4
 * Author URI: https://www.crmperks.com
@@ -26,7 +26,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.1.0';
+  public static  $version = '1.1.1';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -45,6 +45,7 @@ class vxcf_form {
   public static $forms;    
   public static $form_id;    
   public static $user_id;    
+  public static $is_pr;    
   public static $form_id_string;    
   public static $form_fields;
   public static $form_fields_temp;
@@ -64,11 +65,13 @@ add_action('init', array($this,'init'));
 add_filter('crmperks_forms_field_validation_message',array($this,'validate_crmperks_field'),10,4);
 }
 
+
 public  function init(){
     //save screen and url for all forms
 add_action('wp_footer', array($this,'footer_js'),33);
-wp_register_script( 'vx-tablesorter-js', self::$base_url. 'js/jquery.tablesorter.min.js',array('jquery') );
+wp_register_script( 'vx-tablesorter-js', self::$base_url. 'js/jquery.tablesorter.js',array('jquery') );
 wp_register_script( 'vx-tablepager-js', self::$base_url. 'js/jquery.tablesorter.pager.js',array('jquery') );
+wp_register_script( 'vx-tablewidgets-js', self::$base_url. 'js/jquery.tablesorter.widgets.js',array('jquery') );
 
 //$fields=$this->get_form_fields('wp_118');
 //$form=cfx_form::get_form('1'); var_dump($form['fields']); die();
@@ -97,7 +100,7 @@ public  function setup_main(){
   add_action('ufbl_email_send', array(&$this, 'create_entry_ul'),30);
   add_action('grunion_pre_message_sent', array(&$this, 'create_entry_jp'),30,3);
   add_filter('crmperks_forms_new_submission', array(&$this, 'create_entry_vf'),40,3);
-  add_action( 'woocommerce_checkout_update_order_meta',array(&$this,'create_entry_wc'), 30, 2 );
+  //add_action( 'woocommerce_checkout_update_order_meta',array(&$this,'create_entry_wc'), 30, 2 );
   add_action( 'wpforms_process_entry_save',array(&$this,'create_entry_wp'), 30, 4 );
  //   add_action('cntctfrm_get_attachment_data', array(&$this, 'create_entry_be'),30);
 // add_filter('si_contact_email_fields_posted', array($this, 'test'),10,2);
@@ -150,14 +153,25 @@ require_once(self::$path . "includes/crmperks-cf.php");
 require_once(self::$path . "includes/plugin-pages.php");   
 self::$pages=new vxcf_form_pages(); 
 $pro_file=self::$path . 'pro/pro.php';
-if(file_exists($pro_file)){ include_once($pro_file); }
+if(file_exists($pro_file)){ include_once($pro_file); self::$is_pr='1'; }
 $pro_file=self::$path . 'pro/add-ons.php';
 if(file_exists($pro_file)){ include_once($pro_file); }
 $pro_file=self::$path . 'wp/crmperks-notices.php';
 if(file_exists($pro_file)){ include_once($pro_file); }
 //$forms=vxcf_form::get_forms();  
 }
-
+if(!empty($_GET['vx_crm_form_action']) && $_GET['vx_crm_form_action'] == 'download_csv'){
+  $key=$this->post('vx_crm_key');
+   $form_ids=get_option('vx_crm_forms_ids'); 
+   if(is_array($form_ids)){ 
+     $form_id=array_search($key,$form_ids);
+     if(!empty($form_id)){
+         vxcf_form::set_form_fields($form_id);
+         self::download_csv($form_id,array('vx_links'=>'false'));
+         die();
+     }  
+   } 
+}
 }
 
 
@@ -250,9 +264,24 @@ vxcf_form::$form_fields=$fields;
     if(!empty($atts['start'])){
    $start=$atts['start'];   
   }
+  $search=$export='';
+  if($this->do_actions() ){
+   if(!empty($atts['search'])){
+   $search=$atts['search'];   
+  }  
+  if(!empty($atts['export'])){
+   $form_ids=get_option('vx_crm_forms_ids');
+     if(!is_array($form_ids)){ $form_ids=array(); }
+     if(!isset($form_ids[$form_id])){
+      $form_ids[$form_id]=rand(99999,999999999).uniqid().time().rand(999,9999999).uniqid();  
+     update_option('vx_crm_forms_ids',$form_ids); 
+     }
+   $export=$form_ids[$form_id];   
+  } 
+  }
     $page_size='3';
-    if(!empty($atts['page-size'])){
-   $page_size=$atts['page-size'];   
+    if(!empty($atts['per-page'])){
+   $page_size=$atts['per-page'];   
   }  
  $offset=$this->time_offset(); 
   $req=array('start'=>$start,'vx_links'=>'false');
@@ -260,7 +289,7 @@ vxcf_form::$form_fields=$fields;
    $req['user_id']=!empty($atts['user-id']) ? (int)$atts['user-id'] : get_current_user_id();   
   } 
  $data=vxcf_form::get_data_object(); 
-$entries=$data->get_entries($form_id,$limit,$req);
+$entries=$data->get_entries($form_id,$limit,$req); 
 $leads=array();
 if(!empty($entries['result'])){
 $leads=$entries['result'];    
@@ -269,11 +298,13 @@ $leads=$entries['result'];
 $base_url=vxcf_form::get_base_url();
  if(!empty($atts['sortable'])){
 wp_enqueue_script( 'vx-tablesorter-js');
+wp_enqueue_script( 'vx-tablewidgets-js');
  if(!empty($atts['pager'])){
 wp_enqueue_script( 'vx-tablepager-js');
  }
 wp_enqueue_style('vx-tablesorter-css');
  }
+ $leads_table=apply_filters('crmperks_entries_template',self::$path . "templates/leads-table.php");
   /* foreach($leads as $lead){
 
   foreach($fields as $field){  
@@ -299,7 +330,7 @@ $field_label= date('M-d-Y H:i:s',$field_label);
  
   } die('-----------');*/
   ob_start();
-include(self::$path . "templates/leads-table.php");
+include($leads_table);
 return ob_get_clean();
 }
 
@@ -1541,7 +1572,8 @@ public static function get_forms(){
       //    function submission($components, $contact_form, $mail)
     //prepare list of contact forms --
     /// *NOTE* CF7 changed how it stores forms at some point, support legacy?
- $all_forms=get_option('vxcf_all_forms',array()); 
+ //$all_forms=get_option('vxcf_all_forms',array()); //disable saving forms
+ $all_forms=array(); 
 
  if(!is_array($all_forms)){
   $all_forms=array();
@@ -1737,8 +1769,8 @@ $forms_arr=isset($all_forms['ul']['forms']) && is_array($all_forms['ul']['forms'
         }
      $all_forms['ul']=array('label'=>'Ultimate Contact Form Builder','forms'=>$forms_arr);
     }
-    if(class_exists('Woocommerce')){
-     $all_forms['wc']=array('label'=>'WooCommerce','forms'=>array('1'=>'Woocommerce'));
+    if(class_exists('Woocommerce')){ //disable woo
+   //  $all_forms['wc']=array('label'=>'WooCommerce','forms'=>array('1'=>'Woocommerce'));
     }    
     if(function_exists('cntctfrm_settings')){
         
@@ -2332,11 +2364,11 @@ public static function check_option_value($options,$value){
 return array_values($arr);  
 } 
 
-public static function get_entries($form_id,$per_page,$page=''){
+public static function get_entries($form_id,$per_page,$page='',$req=array()){
 $data=array(); 
 $data_obj=vxcf_form::get_data_object();
 if(!empty($form_id)){
-$data= $data_obj->get_entries($form_id,$per_page);
+$data= $data_obj->get_entries($form_id,$per_page,$req);
 if(!empty($data['result'])){
 $data['result']=apply_filters('vxcf_entries_plugin_leads_table',$data['result'],$form_id,$page);
 } }
@@ -2367,11 +2399,14 @@ public static function link_to_settings( $tab='entries' ) {
   
   return  $url;
   }
-public static function set_form_fields(){
+public static function set_form_fields($form_id=''){
    
        if(empty(self::$form_fields)){
         self::$forms=$forms=vxcf_form::get_forms();
-  self::$form_id=esc_sql(vxcf_form::post('form_id'));   
+        if(empty($form_id)){
+         $form_id=vxcf_form::post('form_id');   
+        }
+  self::$form_id=esc_sql($form_id);   
 if(empty(self::$form_id) && !empty(self::$forms)){
       $form_key=key($forms);
       if(isset($forms[$form_key]['forms']) && is_array($forms[$form_key]['forms'])){
@@ -2576,6 +2611,69 @@ $u_agent=$_SERVER['HTTP_USER_AGENT'];
     );
 }
 
+public static function download_csv($form_id,$req=array()){
+   header('Content-disposition: attachment; filename='.date("Y-m-d",current_time('timestamp')).'.csv');
+header("Content-Transfer-Encoding: binary");
+
+    $now = gmdate("D, d M Y H:i:s");
+        header("Expires: Tue, 03 Jul 2000 06:00:00 GMT");
+        header("Cache-Control: max-age=0, no-cache, must-revalidate, proxy-revalidate");
+        header("Last-Modified: {$now} GMT");
+        // force download
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+  $data=vxcf_form::get_entries($form_id,'all','',$req);
+  $leads=$data['result'];
+$extra_keys=array('vxbrowser'=>'browser','vxurl'=>'url','vxscreen'=>'screen','vxcreated'=>'created','vxupdated'=>'updated');
+  $fields=vxcf_form::$form_fields;
+//echo json_encode($fields); 
+ $field_titles=array('#');
+  if(is_array($fields)){
+      foreach($fields as $field){
+       $field_titles[]=$field['label'];   
+      }
+  }
+ // $field_titles[]=__('Created','contact-form-entries');
+ 
+  $fp = fopen('php://output', 'w');
+ // fputs($fp, $bom =( chr(0xEF) . chr(0xBB) . chr(0xBF) ));
+  fputcsv($fp, $field_titles);
+  $sno=0;
+  foreach($leads as $lead_row){
+      $row=!empty($lead_row['detail']) ? $lead_row['detail'] : array();
+  $sno++;
+  $_row=array($sno);
+  foreach($fields as $k=>$field){
+      $val=''; 
+  if(!empty($field['name']) && isset($row[$field['name'].'_field'])){
+      $val=maybe_unserialize($row[$field['name'].'_field']); 
+  }
+  if(isset($extra_keys[$k]) && isset($lead_row[$extra_keys[$k]])){
+      if($k == 'vxbrowser'){
+    $val=isset($lead_row['browser']) ?  $lead_row['browser'].' ' : '';     
+    $val.=isset($lead_row['os']) ?  $lead_row['os'] : '';     
+      }else{
+   $val=$lead_row[$extra_keys[$k]];
+      }   
+  }
+    if(is_array($val)){
+      $val=implode(' - ',$val);    
+      }
+     //  if(function_exists('mb_convert_encoding')){
+     //  $val=mb_convert_encoding($val, $charset);
+     //  } 
+      $_row[]=$val; 
+    
+  }
+
+  $_row[]=$lead_row['created'];
+
+  fputcsv($fp, $_row);    
+  }
+  fclose($fp);
+
+}
 public function vx_id(){
       $vx_id='';
  if(!empty($_COOKIE['vx_user'])){
