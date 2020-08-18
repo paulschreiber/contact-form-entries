@@ -2,9 +2,9 @@
 /**
 * Plugin Name: Contact Form Entries
 * Description: Save form submissions to the database from <a href="https://wordpress.org/plugins/contact-form-7/">Contact Form 7</a>, <a href="https://wordpress.org/plugins/ninja-forms/">Ninja Forms</a>, <a href="https://wordpress.org/plugins/formidable/">Formidable Forms</a>, <a href="https://elementor.com/widgets/form-widget/">Elementor Forms</a> and <a href="https://wordpress.org/plugins/wpforms-lite/">WP Forms</a>. 
-* Version: 1.1.3
+* Version: 1.1.4
 * Requires at least: 3.8
-* Tested up to: 5.4
+* Tested up to: 5.5
 * Author URI: https://www.crmperks.com
 * Plugin URI: https://www.crmperks.com/plugins/contact-form-plugins/crm-perks-forms/
 * Author: CRM Perks
@@ -26,7 +26,7 @@ class vxcf_form {
   public static $type = "vxcf_form";
   public static $path = ''; 
 
-  public static  $version = '1.1.2';
+  public static  $version = '1.1.4';
   public static $upload_folder = 'crm_perks_uploads';
   public static $db_version='';  
   public static $base_url='';  
@@ -79,8 +79,6 @@ wp_register_script( 'vx-tablewidgets-js', self::$base_url. 'js/jquery.tablesorte
 }
 
 public  function setup_main(){ 
- 
-
   //handling post submission.
 //  add_action("gform_entry_created", array($this, 'gf_entry_created'), 40, 2);
 // add_filter('wpcf7_mail_components', array($this, 'submission'), 999, 3);
@@ -116,19 +114,13 @@ add_shortcode('vx-entries', array($this, 'entries_shortcode'));
 load_plugin_textdomain('contact-form-entries', FALSE,  self::plugin_dir_name(). '/languages/' );     
   self::$db_version=get_option(vxcf_form::$type."_version");
   if(self::$db_version != self::$version && current_user_can( 'manage_options' )){
-  $data=vxcf_form::get_data_object();
-  $data->update_table();
   
+  $this->install_plugin();    
   
 /*  $install_data=get_option(vxcf_form::$type."_install_data");
   if(empty($install_data)){
   update_option(vxcf_form::$type."_install_data", array('time'=>current_time( 'timestamp' , 1 )));
   }*/
-  
-  require_once(self::$path . "includes/install.php"); 
-  $install=new vxcf_form_install();
-  $install->create_roles();   
-  $install->create_upload_dir();  
 $meta=$this->get_meta();  
   if(!empty($meta['save_forms'])){
  $forms=vxcf_form::get_forms();
@@ -144,11 +136,7 @@ if(!empty($new_ids)){
     self::$meta=$meta;
  update_option(vxcf_form::$id.'_meta',$meta);   
 }
-}
-
-update_option(vxcf_form::$type."_version", self::$version);
- 
-  }
+} }
 //plugin api
 $this->plugin_api(true);
 require_once(self::$path . "includes/crmperks-cf.php");
@@ -192,6 +180,17 @@ if($start_instance){
 self::$plugin->instance();
 } }
 } 
+}
+
+public function install_plugin(){
+$data=vxcf_form::get_data_object();
+$data->update_table();
+if(empty(self::$path)){   self::$path=$this->get_base_path(); }
+  require_once(self::$path . "includes/install.php"); 
+  $install=new vxcf_form_install();
+  $install->create_roles();   
+  $install->create_upload_dir();
+  update_option(vxcf_form::$type."_version", self::$version);
 }
 public function entries_shortcode($atts){
  
@@ -1517,7 +1516,7 @@ public function uninstall(){
   */
   public function activate(){ 
 $this->plugin_api(true);
-
+  $this->install_plugin();    
 do_action('plugin_status_'.vxcf_form::$type,'activate');  
   }
 /**
@@ -1898,12 +1897,17 @@ if(is_array($tags)){
      if(is_object($tag)){ $tag=(array)$tag; }
      
    if(!empty($tag['name'])){
+ 
        $id=str_replace(' ','',$tag['name']);
        $field=array('name'=>$id);
        $field['label']=ucwords(str_replace(array('-','_')," ",$tag['name']));
        $field['type_']=$tag['type'];
        $field['type']=$tag['basetype'];
        $field['req']=strpos($tag['type'],'*') !==false ? 'true' : '';
+       
+        if($field['type'] == 'select' && !empty($tag['options']) && array_search('multiple',$tag['options'])!== false){
+          $field['type']='multiselect'; 
+       }
        if(!empty($tag['raw_values'])){
           $ops=array();
            foreach($tag['raw_values'] as $v){
