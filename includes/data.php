@@ -165,7 +165,7 @@ public function get_lead_counts($form_id){
     if(is_array($form_id)){
   $search=" l.form_id in ('".implode("','",$form_id)."')";      
     }else{
-  $search=' l.form_id="'.$form_id.'"';      
+  $search=" l.form_id='".$form_id."'";      
     }
 $res=array();
  $sql_all="SELECT count(distinct l.id) FROM {$leads} l where $search and l.status=0";
@@ -228,17 +228,17 @@ $main_fields=array('vxurl','vxscreen','vxbrowser','vxcreated','vxupdated');
          if(is_array($form_id)){
   $form_id_q=' l.form_id in ("'.implode('","',$form_id).'")';      
     }else{
-      $form_id_q=' l.form_id ="'.esc_sql($form_id).'"';
+      $form_id_q=" l.form_id ='".esc_sql($form_id)."'";
     }
      }else{ 
-       $form_id_q=' l.form_id !=""'; 
+       $form_id_q=" l.form_id !=''"; 
      }
     $search=$form_id_q;
 $status_f=0;
  if($status == 'trash'){
 $status_f=1;    
 }
-  $search.=' and l.status ="'.$status_f.'"'; 
+  $search.=' and l.status ='.$status_f.''; 
 if($status == 'unread'){
  $search.=' and l.is_read =0'; 
 }

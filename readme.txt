@@ -3,8 +3,8 @@ Contributors: crmperks, sbazzi
 Tags: contact form 7, contact form 7 database, contact form db, save contact form, wpforms database
 Requires at least: 3.8
 Tested up to: 5.5
-Stable tag: 1.1.4
-Version: 1.1.4
+Stable tag: 1.1.5
+Version: 1.1.5
 Requires PHP: 5.3
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -226,6 +226,9 @@ Contact form 7 entries plugin allows you to save contact form 7 entries to local
 
 
 == Changelog ==
+
+= 1.1.5 =
+* fixed "float as string" mysql error.
 
 = 1.1.4 =
 * fixed contact form 7 dropdown field.
